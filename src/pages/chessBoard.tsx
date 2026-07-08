@@ -77,8 +77,16 @@ export default function ChessBoard() {
     <>
       <div className="flex h-screen">
         <NavBar />
-        <div className="flex-1 flex items-center justify-center overflow-hidden p-4">
-          <Chessboard options={chessboardOptions} />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div
+            className="aspect-square"
+            style={{
+              maxHeight: "calc(100vh - 36px)",
+              maxWidth: "calc(100vh - 36px)",
+            }}
+          >
+            <Chessboard options={chessboardOptions} />
+          </div>
         </div>
       </div>
     </>
