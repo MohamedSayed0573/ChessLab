@@ -5,6 +5,7 @@ import {
 } from "react-chessboard";
 import { Chess } from "chess.js";
 import { useRef, useState } from "react";
+import NavBar from "../components/navBar";
 
 export default function ChessBoard() {
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
@@ -69,27 +70,17 @@ export default function ChessBoard() {
     position: chessPosition,
     onPieceDrop,
     id: "play-vs-random",
-    boardStyle: {
-      width: "min(85vw, 85vh)",
-      height: "min(85vw, 85vh)",
-      maxWidth: "min(85vw, 85vh)",
-      maxHeight: "min(85vw, 85vh)",
-    },
   };
 
   // render the chessboard
   return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-      }}
-    >
-      <Chessboard options={chessboardOptions} />
-    </div>
+    <>
+      <div className="flex h-screen">
+        <NavBar />
+        <div className="flex-1 flex items-center justify-center overflow-hidden p-4">
+          <Chessboard options={chessboardOptions} />
+        </div>
+      </div>
+    </>
   );
 }
