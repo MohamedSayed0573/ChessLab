@@ -4,10 +4,23 @@ import {
   type PieceDropHandlerArgs,
 } from "react-chessboard";
 import { Chess } from "chess.js";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NavBar from "../components/navBar";
+import { io } from "socket.io-client";
 
 export default function ChessBoard() {
+  useEffect(() => {
+    const socket = io("http://localhost:3000");
+
+    socket.on("connect", () => {
+      console.log("Connected! Socket ID:", socket.id);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
   const chessGameRef = useRef(new Chess());
   const chessGame = chessGameRef.current;
