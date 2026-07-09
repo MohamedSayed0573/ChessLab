@@ -6,21 +6,9 @@ import {
 import { Chess } from "chess.js";
 import { useEffect, useRef, useState } from "react";
 import NavBar from "../components/navBar";
-import { io } from "socket.io-client";
+import { socket } from "../socket";
 
 export default function ChessBoard() {
-  useEffect(() => {
-    const socket = io("http://localhost:3000");
-
-    socket.on("connect", () => {
-      console.log("Connected! Socket ID:", socket.id);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
   const chessGameRef = useRef(new Chess());
   const chessGame = chessGameRef.current;
@@ -28,54 +16,80 @@ export default function ChessBoard() {
   // track the current position of the chess game in state to trigger a re-render of the chessboard
   const [chessPosition, setChessPosition] = useState(chessGame.fen());
 
-  // make a random "CPU" move
-  function makeRandomMove() {
-    // get all possible moves`
-    const possibleMoves = chessGame.moves();
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
-    // exit if the game is over
-    if (chessGame.isGameOver()) {
-      return;
-    }
+  useEffect(() => {
+    socket.on("moveRes", (fen) => {
+      chessGameRef.current.load(fen);
+      setChessPosition(chessGameRef.current.fen());
+    });
+  }, []);
 
-    // pick a random move
-    const randomMove =
-      possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+  // // make a random "CPU" move
+  // function makeRandomMove() {
+  //   // get all possible moves`
+  //   const possibleMoves = chessGame.moves();
 
-    // make the move
-    chessGame.move(randomMove);
+  //   // exit if the game is over
+  //   if (chessGame.isGameOver()) {
+  //     return;
+  //   }
 
-    // update the position state
-    setChessPosition(chessGame.fen());
-  }
+  //   // pick a random move
+  //   const randomMove =
+  //     possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+
+  //   // make the move
+  //   chessGame.move(randomMove);
+
+  //   // update the position state
+  //   setChessPosition(chessGame.fen());
+  // }
 
   // handle piece drop
-  function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
+  function onPieceDrop({
+    sourceSquare,
+    targetSquare,
+    piece,
+  }: PieceDropHandlerArgs) {
     // type narrow targetSquare potentially being null (e.g. if dropped off board)
     if (!targetSquare) {
       return false;
     }
 
+    socket.emit("move", {
+      piece: piece.pieceType,
+      from: sourceSquare,
+      to: targetSquare,
+    });
+
+    return true;
+
     // try to make the move according to chess.js logic
-    try {
-      chessGame.move({
-        from: sourceSquare,
-        to: targetSquare,
-        promotion: "q", // always promote to a queen for example simplicity
-      });
+    // try {
+    //   chessGame.move({
+    //     from: sourceSquare,
+    //     to: targetSquare,
+    //     promotion: "q", // always promote to a queen for example simplicity
+    //   });
 
-      // update the position state upon successful move to trigger a re-render of the chessboard
-      setChessPosition(chessGame.fen());
+    // update the position state upon successful move to trigger a re-render of the chessboard
+    //setChessPosition(chessGame.fen());
 
-      // make random cpu move after a short delay
-      setTimeout(makeRandomMove, 500);
+    // make random cpu move after a short delay
+    //setTimeout(makeRandomMove, 500);
 
-      // return true as the move was successful
-      return true;
-    } catch {
-      // return false as the move was not successful
-      return false;
-    }
+    // return true as the move was successful
+    //   return true;
+    // } catch {
+    //   // return false as the move was not successful
+    //   return false;
+    // }
   }
 
   // set the chessboard options
