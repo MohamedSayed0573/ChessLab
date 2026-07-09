@@ -11,23 +11,35 @@ import { socket } from "../socket";
 export default function ChessBoard() {
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
   const chessGameRef = useRef(new Chess());
-  const chessGame = chessGameRef.current;
 
   // track the current position of the chess game in state to trigger a re-render of the chessboard
-  const [chessPosition, setChessPosition] = useState(chessGame.fen());
-
-  useEffect(() => {
-    socket.connect();
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
+  const [color, setColor] = useState<"white" | "black">("white");
+  const [socketId, setSocketId] = useState<string>();
 
   useEffect(() => {
     socket.on("moveRes", (fen) => {
       chessGameRef.current.load(fen);
       setChessPosition(chessGameRef.current.fen());
     });
+
+    socket.on("color", (res: "white" | "black") => {
+      setColor(res);
+    });
+
+    socket.on("connect", () => {
+      setSocketId(socket.id);
+      socket.emit("start");
+    });
+
+    socket.connect();
+
+    return () => {
+      socket.off("moveRes");
+      socket.off("color");
+      socket.off("connect");
+      socket.disconnect();
+    };
   }, []);
 
   // // make a random "CPU" move
@@ -97,13 +109,17 @@ export default function ChessBoard() {
     position: chessPosition,
     onPieceDrop,
     id: "play-vs-random",
+    boardOrientation: color,
   };
+
+  console.log(socketId);
 
   // render the chessboard
   return (
     <>
       <div className="flex h-screen">
         <NavBar />
+        <div>{socketId}</div>
         <div className="flex-1 flex items-center justify-center p-4">
           <div
             className="aspect-square"
