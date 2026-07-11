@@ -11,57 +11,138 @@ server.listen(3000, () => {
   console.log("Server is running at http://localhost:3000");
 });
 
-const chessGame = new Chess();
 type Game = {
-  white?: string | undefined; // socket.id
-  black?: string | undefined; // socket.id
+  id: string;
+  chess: Chess;
+  white: string | undefined; // socket.id
+  black: string | undefined; // socket.id
 };
 
-let game: Game = {};
+const games = new Map<string, Game>();
 
 io.on("connection", (socket) => {
-  socket.join("room1");
-  socket.emit("moveRes", chessGame.fen());
-  console.log("Connected with Socket ID: ", socket.id);
-  socket.on("disconnect", () => {
-    if (game.white === socket.id) {
-      game.white = undefined;
-    } else if (game.black === socket.id) {
-      game.black = undefined;
+  function leaveCurrentGame() {
+    const roomId = socket.data.roomId;
+
+    if (!roomId) return;
+
+    socket.leave(roomId);
+
+    const game = games.get(roomId);
+
+    if (game) {
+      if (game.white === socket.id) game.white = undefined;
+
+      if (game.black === socket.id) game.black = undefined;
+
+      if (!game.white && !game.black) {
+        games.delete(roomId);
+      }
     }
-    console.log(socket.id, " Disconnected");
+
+    delete socket.data.roomId;
+  }
+
+  socket.on("disconnect", () => {
+    leaveCurrentGame();
   });
 
   socket.on("move", ({ piece, from, to }) => {
-    console.log(chessGame.turn());
+    const roomId = socket.data.roomId;
+    if (!roomId) return;
+
+    const game = games.get(roomId);
+    if (!game) return;
 
     if (
-      (chessGame.turn() === "w" && socket.id !== game.white) ||
-      (chessGame.turn() === "b" && socket.id !== game.black)
+      (game.chess.turn() === "w" && socket.id !== game.white) ||
+      (game.chess.turn() === "b" && socket.id !== game.black)
     ) {
-      return; // Ignore or reject the move
+      return;
     }
-    console.log(`Socket ${socket.id} moved ${piece} from ${from} to ${to}`);
 
     try {
-      chessGame.move({ from, to });
-      io.to("room1").emit("moveRes", chessGame.fen());
+      game.chess.move({ from, to });
+      io.to(roomId).emit("moveRes", game.chess.fen());
       console.log(game);
     } catch (err) {
       console.log(`Invalid move from ${from} to ${to}`);
     }
   });
 
-  socket.on("start", () => {
+  socket.on("createGame", (callback) => {
+    leaveCurrentGame();
+
+    const roomId = `room-${crypto.randomUUID()}`;
+
+    games.set(roomId, {
+      chess: new Chess(),
+      id: roomId,
+      white: socket.id,
+      black: undefined,
+    });
+
+    socket.join(roomId);
+    socket.data.roomId = roomId;
+
+    callback({
+      success: true,
+      roomId,
+      color: "white",
+    });
+  });
+
+  socket.on("joinGame", (roomId, callback) => {
+    const game = games.get(roomId);
+
+    if (!game) {
+      callback({
+        success: false,
+        message: "Game doesn't exist",
+      });
+      return;
+    }
+
+    // White (or black) is already connected.
+    if (game.white === socket.id || game.black === socket.id) {
+      const color = game.white === socket.id ? "white" : "black";
+      socket.emit("moveRes", game.chess.fen());
+
+      callback({
+        success: true,
+        color,
+      });
+      return;
+    }
+
+    // Game is full
+    if (game.white && game.black) {
+      callback({
+        success: false,
+        message: "Game is full",
+      });
+      return;
+    }
+
+    leaveCurrentGame();
+
+    // New Socket
+    let color: "white" | "black";
     if (!game.white) {
       game.white = socket.id;
-      socket.emit("color", "white");
-    } else if (!game.black && game.white !== socket.id) {
-      game.black = socket.id;
-      socket.emit("color", "black");
+      color = "white";
     } else {
-      socket.disconnect();
+      game.black = socket.id;
+      color = "black";
     }
-    console.log(game);
+
+    socket.data.roomId = roomId;
+    socket.join(roomId);
+
+    io.to(roomId).emit("moveRes", game.chess.fen());
+    callback({
+      success: true,
+      color,
+    });
   });
 });
