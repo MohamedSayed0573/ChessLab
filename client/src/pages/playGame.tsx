@@ -2,6 +2,8 @@ import { useNavigate } from "react-router";
 import { socket } from "../socket";
 import { useState } from "react";
 import type { CreateGameRes, JoinGameRes } from "../../../shared/src/types";
+import { routes } from "../routes";
+import Layout from "../components/layout";
 
 function PlayComputer() {
   const navigate = useNavigate();
@@ -10,7 +12,7 @@ function PlayComputer() {
       <button
         className="w-full h-14 p-4 rounded hover:cursor-pointer bg-amber-600 font-bold"
         type="button"
-        onClick={() => navigate("/computer")}
+        onClick={() => navigate(routes.play.computer)}
       >
         Play Against Computer
       </button>
@@ -29,7 +31,7 @@ function CreateGame() {
         onClick={() => {
           socket.connect();
           socket.emit("createGame", ({ roomId }: CreateGameRes) => {
-            navigate(`/game/${roomId}`);
+            navigate(routes.play.game.path(roomId));
           });
         }}
       >
@@ -67,7 +69,7 @@ function JoinGame() {
             if (!res.success) {
               setMessage(res.message);
             } else {
-              navigate(`/game/${trimmedRoomId}`);
+              navigate(routes.play.game.path(trimmedRoomId));
             }
           });
         }}
@@ -82,9 +84,11 @@ function JoinGame() {
 export default function PlayGame() {
   return (
     <>
-      <CreateGame />
-      <JoinGame />
-      <PlayComputer />
+      <Layout>
+        <CreateGame />
+        <JoinGame />
+        <PlayComputer />
+      </Layout>
     </>
   );
 }

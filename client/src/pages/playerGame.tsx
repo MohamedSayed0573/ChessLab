@@ -1,16 +1,16 @@
 import {
-  Chessboard,
   type ChessboardOptions,
   type PieceDropHandlerArgs,
 } from "react-chessboard";
 import { Chess } from "chess.js";
 import { useEffect, useRef, useState } from "react";
-import NavBar from "../components/navBar";
 import { socket } from "../socket";
 import { useParams } from "react-router";
 import type { JoinGameRes } from "../../../shared/src/types";
+import Layout from "../components/layout";
+import ChessBoard from "../components/chessBoard";
 
-export default function ChessBoard() {
+export default function PlayerGame() {
   const { roomId } = useParams();
 
   // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
@@ -81,21 +81,9 @@ export default function ChessBoard() {
   // render the chessboard
   return (
     <>
-      <div className="flex h-screen">
-        <NavBar />
-        <div>{roomId}</div>
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div
-            className="aspect-square"
-            style={{
-              maxHeight: "calc(100vh - 36px)",
-              maxWidth: "calc(100vh - 36px)",
-            }}
-          >
-            <Chessboard options={chessboardOptions} />
-          </div>
-        </div>
-      </div>
+      <Layout>
+        <ChessBoard chessboardOptions={chessboardOptions} />
+      </Layout>
     </>
   );
 }

@@ -1,17 +1,20 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import ChessBoard from "./pages/chessBoard";
 import HomePage from "./pages/homePage";
 import PlayGame from "./pages/playGame";
-import ComputerChessBoard from "./pages/computerChessBoard";
+import PlayerGame from "./pages/playerGame";
+import ComputerGame from "./pages/computerGame";
+import { routes } from "./routes";
+import NotFound from "./pages/notFound";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/game/:roomId" element={<ChessBoard />} />
-        <Route path="/play" element={<PlayGame />} />
-        <Route path="/computer" element={<ComputerChessBoard />} />
+        <Route path={routes.home} element={<HomePage />} />
+        <Route path={routes.play.root} element={<PlayGame />} />
+        <Route path={routes.play.game.pattern} element={<PlayerGame />} />
+        <Route path={routes.play.computer} element={<ComputerGame />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
