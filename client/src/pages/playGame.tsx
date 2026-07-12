@@ -6,7 +6,7 @@ import type { CreateGameRes, JoinGameRes } from "../../../shared/src/types";
 function PlayComputer() {
   const navigate = useNavigate();
   return (
-    <div>
+    <div className="p-6">
       <button
         className="w-full h-14 p-4 rounded hover:cursor-pointer bg-amber-600 font-bold"
         type="button"
@@ -45,11 +45,11 @@ function JoinGame() {
   const navigate = useNavigate();
   return (
     <div className="p-6">
-      <div className="w-full p-4 rounded flex">
-        <span className="flex">Enter a game: </span>
+      <div className="w-full p-4 rounded flex bg-amber-300">
+        <span className="flex">{"Enter a game: "}</span>
         <input
           type="text"
-          className="flex flex-1"
+          className="flex flex-1 bg-amber-900"
           value={roomId}
           onChange={(e) => {
             setRoomId(e.target.value);
