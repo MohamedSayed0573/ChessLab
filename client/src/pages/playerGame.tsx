@@ -3,7 +3,7 @@ import {
   type PieceDropHandlerArgs,
 } from "react-chessboard";
 import { Chess } from "chess.js";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { socket } from "../socket";
 import { useParams } from "react-router";
 import type { JoinGameRes } from "../../../shared/src/types";
@@ -13,19 +13,17 @@ import ChessBoard from "../components/chessBoard";
 export default function PlayerGame() {
   const { roomId } = useParams();
 
-  // create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
-  const chessGameRef = useRef(new Chess());
-
   // track the current position of the chess game in state to trigger a re-render of the chessboard
   const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
   const [color, setColor] = useState<"white" | "black">("white");
+  const [gameResult, setGameResult] = useState<string | undefined>();
+  const [winner, setWinner] = useState<"white" | "black" | undefined>();
 
   useEffect(() => {
     if (!roomId) return;
 
     function handleMove(fen: string) {
-      chessGameRef.current.load(fen);
-      setChessPosition(chessGameRef.current.fen());
+      setChessPosition(fen);
     }
 
     function joinGame() {
@@ -35,7 +33,19 @@ export default function PlayerGame() {
       });
     }
 
+    function handleGameOver({
+      reason,
+      winner,
+    }: {
+      reason: string;
+      winner?: "white" | "black";
+    }) {
+      setGameResult(reason);
+      setWinner(winner);
+    }
+
     socket.on("moveRes", handleMove);
+    socket.on("gameOver", handleGameOver);
     socket.on("connect", joinGame);
 
     if (socket.connected) {
@@ -46,9 +56,15 @@ export default function PlayerGame() {
 
     return () => {
       socket.off("moveRes", handleMove);
+      socket.off("gameOver", handleGameOver);
       socket.off("connect", joinGame);
     };
   }, [roomId]);
+
+  const turn = useMemo(
+    () => (new Chess(chessPosition).turn() === "w" ? "White" : "Black"),
+    [chessPosition],
+  );
 
   // handle piece drop
   function onPieceDrop({
@@ -57,7 +73,7 @@ export default function PlayerGame() {
     piece,
   }: PieceDropHandlerArgs) {
     // type narrow targetSquare potentially being null (e.g. if dropped off board)
-    if (!targetSquare) {
+    if (!targetSquare || gameResult) {
       return false;
     }
 
@@ -82,6 +98,16 @@ export default function PlayerGame() {
   return (
     <>
       <Layout>
+        <div>
+          <div>{`You are playing as ${color}`}</div>
+          <div>
+            {gameResult
+              ? winner
+                ? `Game over: ${gameResult}. Winner is ${winner}`
+                : `Game over: ${gameResult}`
+              : `This is ${turn}'s turn`}
+          </div>
+        </div>
         <ChessBoard chessboardOptions={chessboardOptions} />
       </Layout>
     </>

@@ -63,6 +63,33 @@ io.on("connection", (socket) => {
 
     try {
       game.chess.move({ from, to });
+
+      if (game.chess.isGameOver()) {
+        let reason: string;
+        let winner: "white" | "black" | undefined;
+
+        if (game.chess.isCheckmate()) {
+          reason = "Checkmate";
+          winner = game.chess.turn() === "w" ? "black" : "white";
+        } else {
+          if (game.chess.isStalemate()) {
+            reason = "Stalemate";
+          } else if (game.chess.isInsufficientMaterial()) {
+            reason = "Insufficient Material";
+          } else if (game.chess.isThreefoldRepetition()) {
+            reason = "Threefold Repetition";
+          } else if (game.chess.isDrawByFiftyMoves()) {
+            reason = "Fifty-Move Rule";
+          } else {
+            reason = "Draw";
+          }
+        }
+
+        io.to(roomId).emit("gameOver", {
+          reason,
+          winner,
+        });
+      }
       io.to(roomId).emit("moveRes", game.chess.fen());
       console.log(game);
     } catch (err) {
