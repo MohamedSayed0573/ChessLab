@@ -1,6 +1,7 @@
 packages:
   - client
   - server
+  - shared
 allowBuilds:
   '@google/genai': set this to true or false
   bufferutil: false

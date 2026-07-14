@@ -15,3 +15,15 @@ export type JoinGameRes =
       success: true;
       color: PlayerColor;
 };
+
+export type GameOverInfo = {
+  reason:
+    | "Checkmate"
+    | "Stalemate"
+    | "Insufficient Material"
+    | "Threefold Repetition"
+    | "Fifty-Move Rule"
+    | "Draw";
+  winner?: "white" | "black" | undefined;
+};
+

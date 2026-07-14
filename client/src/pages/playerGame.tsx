@@ -67,18 +67,14 @@ export default function PlayerGame() {
   );
 
   // handle piece drop
-  function onPieceDrop({
-    sourceSquare,
-    targetSquare,
-    piece,
-  }: PieceDropHandlerArgs) {
+  function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
     // type narrow targetSquare potentially being null (e.g. if dropped off board)
     if (!targetSquare || gameResult) {
       return false;
     }
 
     socket.emit("move", {
-      piece: piece.pieceType,
+      promotion: "q",
       from: sourceSquare,
       to: targetSquare,
     });

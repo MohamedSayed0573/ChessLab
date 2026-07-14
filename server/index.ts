@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { Chess } from "chess.js";
+import type { GameOverInfo } from "../shared/src/types.js";
 
 const app = express();
 const server = createServer(app);
@@ -47,13 +48,14 @@ io.on("connection", (socket) => {
     leaveCurrentGame();
   });
 
-  socket.on("move", ({ piece, from, to }) => {
+  socket.on("move", ({ promotion, from, to }) => {
     const roomId = socket.data.roomId;
     if (!roomId) return;
 
     const game = games.get(roomId);
     if (!game) return;
 
+    // Check if the turns are correct
     if (
       (game.chess.turn() === "w" && socket.id !== game.white) ||
       (game.chess.turn() === "b" && socket.id !== game.black)
@@ -62,38 +64,16 @@ io.on("connection", (socket) => {
     }
 
     try {
-      game.chess.move({ from, to });
+      game.chess.move({ from, to, promotion });
 
-      if (game.chess.isGameOver()) {
-        let reason: string;
-        let winner: "white" | "black" | undefined;
-
-        if (game.chess.isCheckmate()) {
-          reason = "Checkmate";
-          winner = game.chess.turn() === "w" ? "black" : "white";
-        } else {
-          if (game.chess.isStalemate()) {
-            reason = "Stalemate";
-          } else if (game.chess.isInsufficientMaterial()) {
-            reason = "Insufficient Material";
-          } else if (game.chess.isThreefoldRepetition()) {
-            reason = "Threefold Repetition";
-          } else if (game.chess.isDrawByFiftyMoves()) {
-            reason = "Fifty-Move Rule";
-          } else {
-            reason = "Draw";
-          }
-        }
-
-        io.to(roomId).emit("gameOver", {
-          reason,
-          winner,
-        });
-      }
       io.to(roomId).emit("moveRes", game.chess.fen());
-      console.log(game);
+
+      const gameOverInfo = getGameOverInfo(game.chess);
+      if (gameOverInfo) {
+        io.to(roomId).emit("gameOver", gameOverInfo);
+      }
     } catch (err) {
-      console.log(`Invalid move from ${from} to ${to}`);
+      console.log(`Invalid move from ${from} to ${to}`, err);
     }
   });
 
@@ -173,3 +153,26 @@ io.on("connection", (socket) => {
     });
   });
 });
+
+function getGameOverInfo(chess: Chess): GameOverInfo | undefined {
+  if (!chess.isGameOver()) return;
+
+  if (chess.isCheckmate()) {
+    return {
+      reason: "Checkmate",
+      winner: chess.turn() === "w" ? "black" : "white",
+    };
+  } else {
+    if (chess.isStalemate()) {
+      return { reason: "Stalemate" };
+    } else if (chess.isInsufficientMaterial()) {
+      return { reason: "Insufficient Material" };
+    } else if (chess.isThreefoldRepetition()) {
+      return { reason: "Threefold Repetition" };
+    } else if (chess.isDrawByFiftyMoves()) {
+      return { reason: "Fifty-Move Rule" };
+    } else {
+      return { reason: "Draw" };
+    }
+  }
+}

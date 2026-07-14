@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { socket } from "../socket";
 import { useState } from "react";
-import type { CreateGameRes, JoinGameRes } from "../../../shared/src/types";
+import type { CreateGameRes, JoinGameRes } from "shared";
 import { routes } from "../routes";
 import Layout from "../components/layout";
 
