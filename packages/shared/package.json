@@ -1,18 +1,19 @@
 {
-  "name": "@chesslab/shared",
-  "version": "1.0.0",
-  "description": "",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "exports": {
-    "./*": "./src/*.ts"
-  },
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "devDependencies": {
-    "typescript": "^7.0.2"
-  }
+	"name": "@chesslab/shared",
+	"version": "1.0.0",
+	"private": true,
+	"description": "",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"exports": {
+		"./*": "./src/*.ts"
+	},
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"devDependencies": {
+		"typescript": "^6.0.2"
+	}
 }
