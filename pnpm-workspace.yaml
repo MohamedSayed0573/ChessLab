@@ -1,9 +1,6 @@
 packages:
-  - client
-  - server
-  - shared
+  - "apps/*"
+  - "packages/*"
 allowBuilds:
-  '@google/genai': set this to true or false
   bufferutil: false
   esbuild: false
-  protobufjs: set this to true or false

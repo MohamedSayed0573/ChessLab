@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
-    "dev": "tsx watch index.ts"
+    "dev": "tsx watch index.ts",
+    "build": "tsc",
+    "tsc": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -19,12 +21,14 @@
   },
   "type": "module",
   "dependencies": {
+    "@chesslab/shared": "workspace:*",
     "chess.js": "^1.4.0",
     "express": "^5.2.1",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "tsx": "^4.23.0"
+    "tsx": "^4.23.0",
+    "typescript": "~6.0.3"
   }
 }

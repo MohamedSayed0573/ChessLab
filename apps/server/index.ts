@@ -2,7 +2,7 @@ import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { Chess } from "chess.js";
-import type { GameOverInfo } from "../shared/src/types.js";
+import type { GameOverInfo } from "@chesslab/shared/types";
 
 const app = express();
 const server = createServer(app);

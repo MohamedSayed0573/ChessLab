@@ -6,7 +6,7 @@ import { Chess } from "chess.js";
 import { useEffect, useMemo, useState } from "react";
 import { socket } from "../socket";
 import { useParams } from "react-router";
-import type { JoinGameRes } from "../../../shared/src/types";
+import type { JoinGameRes } from "@chesslab/shared/types";
 import Layout from "../components/layout";
 import ChessBoard from "../components/chessBoard";
 
@@ -86,7 +86,7 @@ export default function PlayerGame() {
   const chessboardOptions: ChessboardOptions = {
     position: chessPosition,
     onPieceDrop,
-    id: roomId,
+    id: roomId!,
     boardOrientation: color,
   };
 

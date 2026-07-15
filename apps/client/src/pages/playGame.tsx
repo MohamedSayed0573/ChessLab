@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { socket } from "../socket";
 import { useState } from "react";
-import type { CreateGameRes, JoinGameRes } from "shared";
+import type { CreateGameRes, JoinGameRes } from "@chesslab/shared/types";
 import { routes } from "../routes";
 import Layout from "../components/layout";
 

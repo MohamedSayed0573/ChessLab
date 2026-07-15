@@ -31,7 +31,7 @@ export default function ComputerChessBoard() {
       possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
 
     // make the move
-    chessGameRef.current.move(randomMove);
+    chessGameRef.current.move(randomMove!);
 
     // update the position state
     setChessPosition(chessGameRef.current.fen());
