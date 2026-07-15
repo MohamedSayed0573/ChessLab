@@ -1,14 +1,14 @@
 {
-  "extends": ["../../tsconfig.json"],
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "target": "es2023",
-    "lib": ["ES2023", "DOM"],
-    "module": "esnext",
-    "types": ["vite/client"],
-    "allowArbitraryExtensions": true,
-  },
-  "include": ["vite.config.ts", "src"]
+	"extends": ["../../tsconfig.json"],
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"target": "es2023",
+		"lib": ["ES2023", "DOM"],
+		"module": "esnext",
+		"types": ["vite/client"],
+		"allowArbitraryExtensions": true
+	},
+	"include": ["vite.config.ts", "src"]
 }

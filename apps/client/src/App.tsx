@@ -7,17 +7,20 @@ import { routes } from "./routes";
 import NotFound from "./pages/notFound";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path={routes.home} element={<HomePage />} />
-        <Route path={routes.play.root} element={<PlayGame />} />
-        <Route path={routes.play.game.pattern} element={<PlayerGame />} />
-        <Route path={routes.play.computer} element={<ComputerGame />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
-  );
+	return (
+		<BrowserRouter>
+			<Routes>
+				<Route path={routes.home} element={<HomePage />} />
+				<Route path={routes.play.root} element={<PlayGame />} />
+				<Route
+					path={routes.play.game.pattern}
+					element={<PlayerGame />}
+				/>
+				<Route path={routes.play.computer} element={<ComputerGame />} />
+				<Route path="*" element={<NotFound />} />
+			</Routes>
+		</BrowserRouter>
+	);
 }
 
 export default App;
