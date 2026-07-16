@@ -3,9 +3,9 @@ import NavBar from "./navBar";
 
 export default function Layout({ children }: { children?: React.ReactNode }) {
 	return (
-		<div className="flex">
+		<div className="flex h-full w-full">
 			<NavBar />
-			{children}
+			<main className="ml-64 flex w-full flex-1">{children}</main>
 		</div>
 	);
 }
