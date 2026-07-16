@@ -3,16 +3,16 @@ import { NavLink } from "react-router";
 
 export default function NavBar() {
 	return (
-		<aside className="flex  flex-col h-screen w-[256px] bg-[#221F1C] text-white fixed top-0 left-0 px-4 py-6">
+		<aside className="fixed top-0 left-0 flex h-screen w-[256px] flex-col bg-[#221F1C] px-4 py-6 text-white">
 			<div className="flex flex-col gap-2 pb-8">
-				<NavLink to="/" className="text-[#E8E1DC] font-bold text-2xl">
+				<NavLink to="/" className="text-2xl font-bold text-[#E8E1DC]">
 					Grandmaster Slate
 				</NavLink>
-				<span className="text-[#C2C9B6] font-medium text-sm">
+				<span className="text-sm font-medium text-[#C2C9B6]">
 					Professional Interface
 				</span>
 			</div>
-			<nav className="flex flex-col gap-3 text-[#C2C9B6] flex-1">
+			<nav className="flex flex-1 flex-col gap-3 text-[#C2C9B6]">
 				<SidebarItem to="/play" icon="play_circle" label="Play" />
 				<SidebarItem to="/puzzles" icon="extension" label="Puzzles" />
 				<SidebarItem to="/learn" icon="menu_book" label="Learn" />
@@ -40,11 +40,11 @@ function SidebarItem({
 			to={to}
 			className={({ isActive, isPending }) =>
 				clsx(
-					"rounded-lg px-4 py-3 text-sm font-medium flex gap-3 items-center cursor-pointer transition-colors",
+					"flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
 					isActive
 						? "bg-lime-500 text-black"
 						: "text-zinc-300 hover:bg-zinc-800",
-					isPending && "cursor-none",
+					isPending && "cursor-wait",
 				)
 			}
 		>
