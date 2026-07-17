@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from "react";
 import { socket } from "../socket";
 import { useParams } from "react-router";
 import type { JoinGameRes } from "@chesslab/shared/types";
-import Layout from "../components/layout";
 import ChessBoard from "../components/chessBoard";
 
 export default function PlayerGame() {
@@ -93,11 +92,11 @@ export default function PlayerGame() {
 	// render the chessboard
 	return (
 		<>
-			<Layout className="mr-64 grid grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312]">
+			<div className="mr-64 grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312]">
 				<Timer />
 				<ChessBoard chessboardOptions={chessboardOptions} />
 				<Timer />
-			</Layout>
+			</div>
 			<SideBar />
 		</>
 	);

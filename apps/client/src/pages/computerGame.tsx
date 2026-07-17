@@ -4,7 +4,6 @@ import {
 } from "react-chessboard";
 import { useRef, useState } from "react";
 import { Chess } from "chess.js";
-import Layout from "../components/layout";
 import ChessBoard from "../components/chessBoard";
 
 export default function ComputerChessBoard() {
@@ -70,9 +69,7 @@ export default function ComputerChessBoard() {
 
 	return (
 		<>
-			<Layout>
-				<ChessBoard chessboardOptions={chessboardOptions} />
-			</Layout>
+			<ChessBoard chessboardOptions={chessboardOptions} />
 		</>
 	);
 }

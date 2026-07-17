@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router";
-import Layout from "../components/layout";
 import { routes } from "../routes";
 import type React from "react";
 import { useState } from "react";
@@ -10,40 +9,38 @@ export default function PlayPage() {
 	const navigate = useNavigate();
 	const { createGame, errorMessage, clearMessage } = useCreateGame();
 	return (
-		<Layout>
-			<div className="font-hanken flex h-screen flex-col gap-12 bg-[#151310] p-12">
-				<HeroSection>
-					<Hero />
-					<BoardCard />
-				</HeroSection>
+		<div className="font-hanken flex h-screen flex-col gap-12 bg-[#151310] p-12">
+			<HeroSection>
+				<Hero />
+				<BoardCard />
+			</HeroSection>
 
-				<CardsSection>
-					<FeatureCard
-						label="Play a Friend"
-						icon="group"
-						description="Challenge your friends to a friendly match or a
+			<CardsSection>
+				<FeatureCard
+					label="Play a Friend"
+					icon="group"
+					description="Challenge your friends to a friendly match or a
 							competitive rated series."
-						btnLabel="Create a new Room"
-						btnOnClick={createGame}
-					/>
-					<FeatureCard
-						label="Play Computer"
-						icon="smart_toy"
-						description="Play against various engine levels
+					btnLabel="Create a new Room"
+					btnOnClick={createGame}
+				/>
+				<FeatureCard
+					label="Play Computer"
+					icon="smart_toy"
+					description="Play against various engine levels
 							from beginner to grandmaster."
-						btnLabel="Play against Computer"
-						btnOnClick={() => navigate(routes.play.computer)}
-					/>
-					<JoinRoomCard />
-				</CardsSection>
-				{errorMessage && (
-					<ErrorMessage
-						errorMessage={errorMessage}
-						clearMessage={clearMessage}
-					/>
-				)}
-			</div>
-		</Layout>
+					btnLabel="Play against Computer"
+					btnOnClick={() => navigate(routes.play.computer)}
+				/>
+				<JoinRoomCard />
+			</CardsSection>
+			{errorMessage && (
+				<ErrorMessage
+					errorMessage={errorMessage}
+					clearMessage={clearMessage}
+				/>
+			)}
+		</div>
 	);
 }
 

@@ -1,16 +1,10 @@
-import type React from "react";
 import NavBar from "./navBar";
 import { cn } from "../utils/cn";
 import { NavBarContext } from "../contexts/navBarContext";
 import { useState } from "react";
+import { Outlet } from "react-router";
 
-export default function Layout({
-	children,
-	className,
-}: {
-	children?: React.ReactNode;
-	className?: string;
-}) {
+export default function Layout({ className }: { className?: string }) {
 	const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
 
 	return (
@@ -29,7 +23,7 @@ export default function Layout({
 						isCollapsed ? "ml-12" : "ml-64",
 					)}
 				>
-					{children}
+					<Outlet />
 				</main>
 			</div>
 		</NavBarContext.Provider>
