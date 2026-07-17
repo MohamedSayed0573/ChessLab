@@ -1,11 +1,20 @@
 import type React from "react";
 import NavBar from "./navBar";
+import { cn } from "../utils/cn";
 
-export default function Layout({ children }: { children?: React.ReactNode }) {
+export default function Layout({
+	children,
+	className,
+}: {
+	children?: React.ReactNode;
+	className?: string;
+}) {
 	return (
-		<div className="flex min-h-screen w-full">
+		<div className="h-screen">
 			<NavBar />
-			<main className="ml-64 flex flex-1">{children}</main>
+			<main className={cn("ml-64 h-full min-w-0", className)}>
+				{children}
+			</main>
 		</div>
 	);
 }

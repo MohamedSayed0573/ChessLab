@@ -323,6 +323,9 @@ importers:
             socket.io-client:
                 specifier: ^4.8.3
                 version: 4.8.3
+            tailwind-merge:
+                specifier: ^3.6.0
+                version: 3.6.0
             tailwindcss:
                 specifier: ^4.3.2
                 version: 4.3.2
@@ -3216,6 +3219,12 @@ packages:
             }
         engines: { node: ">=12" }
 
+    tailwind-merge@3.6.0:
+        resolution:
+            {
+                integrity: sha512-uxL7qAVQriqRQPAyK3pj66VqskWqoZ37PW94jwOTwNfq/z9oyu1V+eqrZqtR2+fCiXdYOZe/Modt8GtvqNzu+w==,
+            }
+
     tailwindcss@4.3.2:
         resolution:
             {
@@ -5115,6 +5124,8 @@ snapshots:
     strip-ansi@7.2.0:
         dependencies:
             ansi-regex: 6.2.2
+
+    tailwind-merge@3.6.0: {}
 
     tailwindcss@4.3.2: {}
 

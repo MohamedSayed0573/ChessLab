@@ -93,19 +93,34 @@ export default function PlayerGame() {
 	// render the chessboard
 	return (
 		<>
-			<Layout>
-				<div>
-					<div>{`You are playing as ${color}`}</div>
-					<div>
-						{gameResult
-							? winner
-								? `Game over: ${gameResult}. Winner is ${winner}`
-								: `Game over: ${gameResult}`
-							: `This is ${turn}'s turn`}
-					</div>
-				</div>
+			<Layout className="mr-64 grid grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312]">
+				<Timer />
 				<ChessBoard chessboardOptions={chessboardOptions} />
+				<Timer />
 			</Layout>
+			<SideBar />
 		</>
+	);
+}
+
+function SideBar() {
+	return (
+		<div className="fixed top-0 right-0 h-full w-64 border-l border-[#424A35] bg-[#1C1C1A] p-4"></div>
+	);
+}
+
+function Timer() {
+	return (
+		<div className="m-2 flex items-center justify-between rounded-lg border border-[#424A35]/30 bg-[#20201E] p-3">
+			<div className="flex items-center gap-2">
+				<span className="material-symbols-outlined">person</span>
+				<span className="text-lg text-[#E5E2DE]">Random Dude</span>
+			</div>
+			<div className="rounded border border-[#424A35] bg-[#2A2A28] px-4 py-2">
+				<span className="font-mono text-lg font-medium text-[#E5E2DE]">
+					10:00
+				</span>
+			</div>
+		</div>
 	);
 }

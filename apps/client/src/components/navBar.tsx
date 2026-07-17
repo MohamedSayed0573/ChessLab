@@ -1,9 +1,9 @@
-import clsx from "clsx";
+import { cn } from "../utils/cn";
 import { NavLink } from "react-router";
 
 export default function NavBar() {
 	return (
-		<aside className="fixed top-0 left-0 flex h-screen w-[256px] flex-col bg-[#221F1C] px-4 py-6 text-white">
+		<aside className="fixed top-0 left-0 flex h-screen w-[256px] flex-col border-r border-[#424A35] bg-[#221F1C] px-4 py-6 text-white">
 			<div className="flex flex-col gap-2 pb-8">
 				<NavLink to="/" className="text-2xl font-bold text-[#E8E1DC]">
 					Grandmaster Slate
@@ -39,7 +39,7 @@ function SidebarItem({
 		<NavLink
 			to={to}
 			className={({ isActive, isPending }) =>
-				clsx(
+				cn(
 					"flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
 					isActive
 						? "bg-lime-500 text-black"
