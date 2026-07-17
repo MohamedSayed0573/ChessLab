@@ -1,18 +1,47 @@
+import { useContext } from "react";
 import { cn } from "../utils/cn";
 import { NavLink } from "react-router";
+import { NavBarContext } from "../contexts/navBarContext";
 
 export default function NavBar() {
+	const { collapsed: isCollapsed, toggle } = useContext(NavBarContext);
+
 	return (
-		<aside className="fixed top-0 left-0 flex h-screen w-[256px] flex-col border-r border-[#424A35] bg-[#221F1C] px-4 py-6 text-white">
-			<div className="flex flex-col gap-2 pb-8">
-				<NavLink to="/" className="text-2xl font-bold text-[#E8E1DC]">
-					Grandmaster Slate
-				</NavLink>
-				<span className="text-sm font-medium text-[#C2C9B6]">
-					Professional Interface
+		<aside
+			className={cn(
+				"fixed top-0 left-0 flex h-screen w-[256px] flex-col border-r border-[#424A35] bg-[#221F1C] px-4 py-6 text-white transition-all duration-300",
+				{ "w-12 px-1 py-0": isCollapsed },
+			)}
+		>
+			<button
+				className="absolute top-4 right-3 cursor-pointer"
+				onClick={() => {
+					toggle();
+				}}
+			>
+				<span className="material-symbols-outlined">
+					{isCollapsed ? "right_panel_close" : "right_panel_open"}
 				</span>
-			</div>
-			<nav className="flex flex-1 flex-col gap-3 text-[#C2C9B6]">
+			</button>
+
+			{!isCollapsed && (
+				<div className="flex flex-col gap-2 pb-8">
+					<NavLink
+						to="/"
+						className="text-2xl font-bold text-[#E8E1DC]"
+					>
+						Grandmaster
+					</NavLink>
+					<span className="text-sm font-medium text-[#C2C9B6]">
+						Professional Interface
+					</span>
+				</div>
+			)}
+			<nav
+				className={cn("flex flex-1 flex-col gap-3 text-[#C2C9B6]", {
+					"gap-5 pt-18": isCollapsed,
+				})}
+			>
 				<SidebarItem to="/play" icon="play_circle" label="Play" />
 				<SidebarItem to="/puzzles" icon="extension" label="Puzzles" />
 				<SidebarItem to="/learn" icon="menu_book" label="Learn" />
@@ -35,6 +64,8 @@ function SidebarItem({
 	icon: string;
 	label: string;
 }) {
+	const { collapsed: iconOnly } = useContext(NavBarContext);
+
 	return (
 		<NavLink
 			to={to}
@@ -45,11 +76,12 @@ function SidebarItem({
 						? "bg-lime-500 text-black"
 						: "text-zinc-300 hover:bg-zinc-800",
 					isPending && "cursor-wait",
+					iconOnly && "justify-center",
 				)
 			}
 		>
 			<span className="material-symbols-outlined">{icon}</span>
-			<span>{label}</span>
+			{!iconOnly && <span>{label}</span>}
 		</NavLink>
 	);
 }
