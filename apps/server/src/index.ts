@@ -17,9 +17,21 @@ type Game = {
 	chess: Chess;
 	white: string | undefined; // socket.id
 	black: string | undefined; // socket.id
+	whiteTimeMs: number;
+	blackTimeMs: number;
+	lastMoveTime: number;
 };
 
 const games = new Map<string, Game>();
+
+function sendGameState(roomId: string, game: Game) {
+	io.to(roomId).emit("gameState", {
+		whiteTimeMs: game.whiteTimeMs,
+		blackTimeMs: game.blackTimeMs,
+		currentTurn: game.chess.turn(),
+		lastMoveTime: game.lastMoveTime,
+	});
+}
 
 io.on("connection", (socket) => {
 	function leaveCurrentGame() {
@@ -72,6 +84,16 @@ io.on("connection", (socket) => {
 			if (gameOverInfo) {
 				io.to(roomId).emit("gameOver", gameOverInfo);
 			}
+
+			const timeDifference = new Date().getTime() - game.lastMoveTime;
+			game.lastMoveTime = new Date().getTime();
+			if (game.chess.turn() === "w") {
+				game.blackTimeMs -= timeDifference;
+			} else {
+				game.whiteTimeMs -= timeDifference;
+			}
+
+			sendGameState(roomId, game);
 		} catch (err) {
 			console.log(`Invalid move from ${from} to ${to}`, err);
 		}
@@ -87,15 +109,20 @@ io.on("connection", (socket) => {
 			id: roomId,
 			white: socket.id,
 			black: undefined,
+			whiteTimeMs: 600_000,
+			blackTimeMs: 600_000,
+			lastMoveTime: new Date().getTime(),
 		});
 
 		socket.join(roomId);
 		socket.data.roomId = roomId;
 
+		sendGameState(roomId, games.get(roomId)!);
+
 		callback({
 			success: true,
 			roomId,
-			color: "white",
+			color: "w",
 		});
 	});
 
@@ -112,9 +139,10 @@ io.on("connection", (socket) => {
 
 		// White (or black) is already connected.
 		if (game.white === socket.id || game.black === socket.id) {
-			const color = game.white === socket.id ? "white" : "black";
+			const color = game.white === socket.id ? "w" : "b";
 			socket.emit("moveRes", game.chess.fen());
 
+			sendGameState(roomId, game);
 			callback({
 				success: true,
 				color,
@@ -134,19 +162,20 @@ io.on("connection", (socket) => {
 		leaveCurrentGame();
 
 		// New Socket
-		let color: "white" | "black";
+		let color: "w" | "b";
 		if (!game.white) {
 			game.white = socket.id;
-			color = "white";
+			color = "w";
 		} else {
 			game.black = socket.id;
-			color = "black";
+			color = "b";
 		}
 
 		socket.data.roomId = roomId;
 		socket.join(roomId);
 
 		io.to(roomId).emit("moveRes", game.chess.fen());
+		sendGameState(roomId, game);
 		callback({
 			success: true,
 			color,
@@ -160,19 +189,19 @@ function getGameOverInfo(chess: Chess): GameOverInfo | undefined {
 	if (chess.isCheckmate()) {
 		return {
 			reason: "Checkmate",
-			winner: chess.turn() === "w" ? "black" : "white",
+			winner: chess.turn() === "w" ? "b" : "w",
 		};
 	} else {
 		if (chess.isStalemate()) {
-			return { reason: "Stalemate" };
+			return { reason: "Stalemate", winner: "d" };
 		} else if (chess.isInsufficientMaterial()) {
-			return { reason: "Insufficient Material" };
+			return { reason: "Insufficient Material", winner: "d" };
 		} else if (chess.isThreefoldRepetition()) {
-			return { reason: "Threefold Repetition" };
+			return { reason: "Threefold Repetition", winner: "d" };
 		} else if (chess.isDrawByFiftyMoves()) {
-			return { reason: "Fifty-Move Rule" };
+			return { reason: "Fifty-Move Rule", winner: "d" };
 		} else {
-			return { reason: "Draw" };
+			return { reason: "Draw", winner: "d" };
 		}
 	}
 }

@@ -1,9 +1,9 @@
-export type PlayerColor = "white" | "black";
+export type PlayerColor = "w" | "b";
 
 export type CreateGameRes = {
 	success: true;
 	roomId: string;
-	color: "white";
+	color: "w";
 };
 
 export type JoinGameRes =
@@ -24,5 +24,5 @@ export type GameOverInfo = {
 		| "Threefold Repetition"
 		| "Fifty-Move Rule"
 		| "Draw";
-	winner?: "white" | "black" | undefined;
+	winner: "w" | "b" | "d";
 };
