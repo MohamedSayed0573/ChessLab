@@ -27,11 +27,16 @@ export default function PlayerGame() {
 	const [whiteDisplay, setWhiteDisplay] = useState<number>(600_000);
 	const [blackDisplay, setBlackDisplay] = useState<number>(600_000);
 
+	const [gameHistory, setGameHistory] = useState<string[]>();
+
 	useEffect(() => {
 		if (!roomId) return;
 
 		function handleMove(fen: string) {
 			setChessPosition(fen);
+			socket.emit("getHistory", (res: string[]) => {
+				setGameHistory(res);
+			});
 		}
 
 		function joinGame() {
@@ -134,7 +139,7 @@ export default function PlayerGame() {
 	// render the chessboard
 	return (
 		<>
-			<div className="mr-120 grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312]">
+			<div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312] md:mr-120">
 				<Timer
 					side={color === "w" ? "b" : "w"}
 					blackDisplayTime={blackDisplay!}
@@ -149,14 +154,20 @@ export default function PlayerGame() {
 					whiteDisplayTime={whiteDisplay!}
 				/>
 			</div>
-			<SideBar gameOverInfo={gameOverInfo} />
+			<SideBar gameOverInfo={gameOverInfo} gameHistory={gameHistory} />
 		</>
 	);
 }
 
-function SideBar({ gameOverInfo }: { gameOverInfo: GameOverInfo | undefined }) {
+function SideBar({
+	gameOverInfo,
+	gameHistory,
+}: {
+	gameOverInfo: GameOverInfo | undefined;
+	gameHistory: string[] | undefined;
+}) {
 	return (
-		<div className="fixed top-0 right-0 h-full w-120 border-l border-[#424A35] bg-[#1C1C1A] p-4">
+		<div className="fixed top-0 right-0 hidden h-full w-120 border-l border-[#424A35] bg-[#1C1C1A] p-4 md:block">
 			{gameOverInfo && (
 				<>
 					<div>
@@ -168,6 +179,32 @@ function SideBar({ gameOverInfo }: { gameOverInfo: GameOverInfo | undefined }) {
 					</div>
 					<div>{gameOverInfo.reason}</div>
 				</>
+			)}
+			{gameHistory && (
+				<table className="w-full table-fixed text-sm">
+					<tbody>
+						{Array(Math.ceil(gameHistory.length / 2))
+							.fill(undefined)
+							.map((_, row) => (
+								<tr
+									key={row}
+									className="border-b border-zinc-800 hover:bg-zinc-800/50"
+								>
+									<td className="w-10 py-1 text-center text-zinc-500">
+										{row + 1}.
+									</td>
+
+									<td className="px-3 py-1 font-medium">
+										{gameHistory[row * 2]}
+									</td>
+
+									<td className="px-3 py-1 font-medium">
+										{gameHistory[row * 2 + 1] ?? ""}
+									</td>
+								</tr>
+							))}
+					</tbody>
+				</table>
 			)}
 		</div>
 	);

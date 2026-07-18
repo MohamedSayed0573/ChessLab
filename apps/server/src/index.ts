@@ -181,6 +181,16 @@ io.on("connection", (socket) => {
 			color,
 		});
 	});
+
+	socket.on("getHistory", (callback) => {
+		const roomId = socket.data.roomId;
+		if (!roomId) return;
+
+		const game = games.get(roomId);
+		if (!game) return;
+
+		callback(game.chess.history());
+	});
 });
 
 function getGameOverInfo(chess: Chess): GameOverInfo | undefined {
