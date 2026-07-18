@@ -3,13 +3,13 @@ import { cn } from "../utils/cn";
 import { NavLink } from "react-router";
 import { NavBarContext } from "../contexts/navBarContext";
 
-export default function NavBar() {
+export default function DesktopNav() {
 	const { collapsed: isCollapsed, toggle } = useContext(NavBarContext);
 
 	return (
 		<aside
 			className={cn(
-				"fixed top-0 left-0 flex h-screen w-[256px] flex-col border-r border-[#424A35] bg-[#221F1C] px-4 py-6 text-white transition-all duration-300",
+				"fixed top-0 left-0 hidden h-screen w-[256px] flex-col border-r border-[#424A35] bg-[#221F1C] px-4 py-6 text-white transition-all duration-300 sm:flex",
 				{ "w-12 px-1 py-0": isCollapsed },
 			)}
 		>
@@ -49,7 +49,6 @@ export default function NavBar() {
 			</nav>
 			<nav className="border-t border-zinc-800 pt-2">
 				<SidebarItem to="/settings" icon="settings" label="Settings" />
-				<SidebarItem to="/help" icon="help" label="Help" />
 			</nav>
 		</aside>
 	);

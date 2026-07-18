@@ -1,8 +1,8 @@
-import NavBar from "./navBar";
 import { cn } from "../utils/cn";
 import { NavBarContext } from "../contexts/navBarContext";
 import { useState } from "react";
 import { Outlet } from "react-router";
+import Navigation from "./Navigation";
 
 export default function Layout({ className }: { className?: string }) {
 	const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
@@ -15,12 +15,12 @@ export default function Layout({ className }: { className?: string }) {
 			}}
 		>
 			<div className="h-screen">
-				<NavBar />
+				<Navigation />
 				<main
 					className={cn(
 						"h-full min-w-0",
 						className,
-						isCollapsed ? "ml-12" : "ml-64",
+						isCollapsed ? "sm:ml-12" : "sm:ml-64",
 					)}
 				>
 					<Outlet />

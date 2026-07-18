@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 
-import Layout from "./components/layout";
+import Layout from "./components/Layout";
 import { routes } from "./routes";
 import HomePage from "./pages/homePage";
 import PlayerGame from "./pages/playerGame";

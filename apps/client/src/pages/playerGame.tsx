@@ -139,7 +139,7 @@ export default function PlayerGame() {
 	// render the chessboard
 	return (
 		<>
-			<div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312] md:mr-120">
+			<div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312] sm:mr-120">
 				<Timer
 					side={color === "w" ? "b" : "w"}
 					blackDisplayTime={blackDisplay!}
@@ -167,7 +167,7 @@ function SideBar({
 	gameHistory: string[] | undefined;
 }) {
 	return (
-		<div className="fixed top-0 right-0 hidden h-full w-120 border-l border-[#424A35] bg-[#1C1C1A] p-4 md:block">
+		<div className="fixed top-0 right-0 hidden h-full w-120 border-l border-[#424A35] bg-[#1C1C1A] p-4 sm:block">
 			{gameOverInfo && (
 				<>
 					<div>
