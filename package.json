@@ -4,6 +4,7 @@
 	"private": true,
 	"keywords": [],
 	"author": "Mohamed Sayed",
+	"type": "module",
 	"license": "ISC",
 	"scripts": {
 		"lint": "eslint .",
@@ -12,17 +13,9 @@
 		"format:write": "prettier . --write",
 		"prepare": "husky"
 	},
-	"devEngines": {
-		"packageManager": {
-			"name": "pnpm",
-			"version": "^11.10.0",
-			"onFail": "download"
-		}
-	},
 	"lint-staged": {
 		"**/*": "prettier --write --ignore-unknown"
 	},
-	"type": "module",
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"eslint": "^10.7.0",
