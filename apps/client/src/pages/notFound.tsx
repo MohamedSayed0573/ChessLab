@@ -2,7 +2,7 @@ import { NavLink } from "react-router";
 
 export default function NotFound() {
 	return (
-		<div className="font-hanken flex w-full flex-1 flex-col items-center justify-center gap-6 bg-[#151310]">
+		<div className="font-hanken flex h-full w-full flex-1 flex-col items-center justify-center gap-6 bg-[#151310]">
 			<div className="text-[160px] font-bold -tracking-widest text-[#9FD668]">
 				404
 			</div>

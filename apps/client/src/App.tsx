@@ -23,8 +23,8 @@ export default function App() {
 						path={routes.play.computer}
 						element={<ComputerGame />}
 					/>
+					<Route path="*" element={<NotFound />} />
 				</Route>
-				<Route path="*" element={<NotFound />} />
 			</Routes>
 		</BrowserRouter>
 	);
