@@ -1,6 +1,7 @@
 import type { Response } from "express";
 import type { CookieName, JwtPayload } from "../types/types.ts";
 import * as jwt from "jsonwebtoken";
+import * as argon2 from "argon2";
 
 export function generateJWT(payload: JwtPayload) {
 	return jwt.sign(payload, process.env.JWT_SECRET!, {
@@ -20,4 +21,11 @@ export function saveCookie(
 
 export function clearCookie(res: Response, cookieName: CookieName) {
 	res.clearCookie(cookieName);
+}
+
+export async function verifyPassword(
+	userPassword: string,
+	hashedPassword: string,
+) {
+	return await argon2.verify(hashedPassword, userPassword);
 }
