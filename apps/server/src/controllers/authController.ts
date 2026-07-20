@@ -10,6 +10,7 @@ import {
 import { COOKIE_NAMES } from "@/constants.js";
 import { db } from "@database/db.js";
 import * as argon2 from "argon2";
+import { BadRequestError } from "@/errors.js";
 
 export async function loginController(req: Request, res: Response) {
 	const { email, password } = req.body;
@@ -36,6 +37,14 @@ export async function loginController(req: Request, res: Response) {
 
 export async function registerController(req: Request, res: Response) {
 	const { name, username, email, password } = req.body;
+
+	const [alreadyExists] = await db
+		.select()
+		.from(usersTable)
+		.where(eq(usersTable.username, username));
+
+	if (alreadyExists) throw new BadRequestError("Username already exists");
+
 	const passwordHashed = await argon2.hash(password);
 
 	const user: typeof usersTable.$inferInsert = {

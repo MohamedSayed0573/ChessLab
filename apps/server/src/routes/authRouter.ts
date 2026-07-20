@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { requireAuth, requireGuest } from "@middleware/authMiddleware.js";
 import {
+	validate,
+	loginSchema,
+	registerSchema,
+} from "@middleware/validation/authValidation.js";
+import {
 	loginController,
 	logoutController,
 	meController,
@@ -10,9 +15,14 @@ import {
 
 const router: Router = Router();
 
-router.post("/login", requireGuest, loginController);
+router.post("/login", requireGuest, validate(loginSchema), loginController);
 
-router.post("/register", requireGuest, registerController);
+router.post(
+	"/register",
+	requireGuest,
+	validate(registerSchema),
+	registerController,
+);
 
 router.get("/me", requireAuth, meController);
 

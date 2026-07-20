@@ -7,7 +7,7 @@
 		"ignoreDeprecations": "6.0",
 		"paths": {
 			"@/*": ["src/*"],
-			"@middleware/*": ["src/middlewares/*"],
+			"@middleware/*": ["src/middleware/*"],
 			"@controllers/*": ["src/controllers/*"],
 			"@routes/*": ["src/routes/*"],
 			"@sockets/*": ["src/sockets/*"],
