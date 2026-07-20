@@ -1,8 +1,15 @@
 import express, { type Express } from "express";
 import authRouter from "./routes/authRouter.ts";
 import { type Request, type Response } from "express";
+import cookieParser from "cookie-parser";
+import { authenticate } from "./middleware/authMiddleware.ts";
 
 const app: Express = express();
+
+app.use(express.json());
+app.use(cookieParser());
+
+app.use(authenticate);
 
 app.use("/auth", authRouter);
 
