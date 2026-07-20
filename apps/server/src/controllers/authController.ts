@@ -1,6 +1,6 @@
 import { type Request, type Response } from "express";
 import { usersTable } from "@database/schema.js";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import {
 	clearCookie,
 	generateJWT,
@@ -10,7 +10,7 @@ import {
 import { COOKIE_NAMES } from "@/constants.js";
 import { db } from "@database/db.js";
 import * as argon2 from "argon2";
-import { BadRequestError } from "@/errors.js";
+import { BadRequestError, UnauthorizedError } from "@/errors.js";
 
 export async function loginController(req: Request, res: Response) {
 	const { email, password } = req.body;
@@ -22,15 +22,16 @@ export async function loginController(req: Request, res: Response) {
 		})
 		.from(usersTable)
 		.where(eq(usersTable.email, email));
-	if (!user) throw new Error("Invalid email or password");
+	if (!user) throw new UnauthorizedError("Invalid email or password");
 
 	const validPassword = await verifyPassword(password, user.passwordHashed);
-	if (!validPassword) throw new Error("Invalid email or password");
+	if (!validPassword)
+		throw new UnauthorizedError("Invalid email or password");
 
 	const token = generateJWT({ userId: user.id });
 	saveCookie(res, COOKIE_NAMES.JWT, token);
 
-	res.json({
+	res.status(200).json({
 		success: true,
 	});
 }
@@ -41,10 +42,17 @@ export async function registerController(req: Request, res: Response) {
 	const [alreadyExists] = await db
 		.select()
 		.from(usersTable)
-		.where(eq(usersTable.username, username));
+		.where(
+			or(eq(usersTable.username, username), eq(usersTable.email, email)),
+		);
 
-	if (alreadyExists) throw new BadRequestError("Username already exists");
+	if (alreadyExists?.username === username) {
+		throw new BadRequestError("Username already exists");
+	}
 
+	if (alreadyExists?.email === email) {
+		throw new BadRequestError("Email already exists");
+	}
 	const passwordHashed = await argon2.hash(password);
 
 	const user: typeof usersTable.$inferInsert = {
@@ -80,9 +88,9 @@ export async function meController(req: Request, res: Response) {
 		.from(usersTable)
 		.where(eq(usersTable.id, userId));
 
-	if (!user) throw new Error("user doesn't exist");
+	if (!user) throw new BadRequestError("user doesn't exist");
 
-	res.json({
+	res.status(200).json({
 		success: true,
 		user,
 	});
@@ -102,7 +110,7 @@ export async function removeController(req: Request, res: Response) {
 		.delete(usersTable)
 		.where(eq(usersTable.id, userId))
 		.returning({ id: usersTable.id });
-	if (!removedUser) throw new Error("The user does not exist");
+	if (!removedUser) throw new BadRequestError("The user does not exist");
 
 	clearCookie(res, "jwt");
 

@@ -2,6 +2,6 @@ packages:
     - "apps/*"
     - "packages/*"
 allowBuilds:
-    argon2: false
+    argon2: true
     bufferutil: false
     esbuild: false
