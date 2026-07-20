@@ -97,7 +97,7 @@ export async function meController(req: Request, res: Response) {
 }
 
 export async function logoutController(req: Request, res: Response) {
-	clearCookie(res, "jwt");
+	clearCookie(res, COOKIE_NAMES.JWT);
 	res.status(200).json({
 		success: true,
 	});

@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express, { type Express, type NextFunction } from "express";
 import authRouter from "./routes/authRouter.js";
 import { type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
@@ -14,11 +14,11 @@ app.use(authenticate);
 
 app.use("/auth", authRouter);
 
-app.get("*", (req: Request, res: Response) => {
+app.use("*", (req: Request, res: Response) => {
 	res.status(404).send("Page Not Found");
 });
 
-app.use((err: unknown, req: Request, res: Response) => {
+app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
 	console.error(err);
 
 	let message = "Internal Server Error";
