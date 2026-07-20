@@ -1,9 +1,18 @@
 import express, { type Express } from "express";
+import authRouter from "./routes/authRouter.ts";
+import { type Request, type Response } from "express";
 
 const app: Express = express();
 
-app.get("/", (req, res) => {
-	res.send("Hello World!");
+app.use("/auth", authRouter);
+
+app.get("*", (req: Request, res: Response) => {
+	res.status(404).send("Page Not Found");
+});
+
+app.use((err: Error, req: Request, res: Response) => {
+	console.error(err.stack);
+	res.status(500).send("Something broke!");
 });
 
 export default app;
