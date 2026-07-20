@@ -1,4 +1,4 @@
-import type { COOKIE_NAMES } from "../constants.ts";
+import type { COOKIE_NAMES } from "@/constants.ts";
 
 export interface JwtPayload {
 	userId: number;

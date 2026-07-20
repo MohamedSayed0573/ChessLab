@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import { ConflictError, UnauthorizedError } from "../errors.ts";
-import type { JwtPayload } from "../types/types.ts";
+import { ConflictError, UnauthorizedError } from "@/errors.js";
+import type { JwtPayload } from "@app-types/types.js";
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
 	const token = req.cookies.jwt;

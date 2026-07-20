@@ -1,8 +1,8 @@
 import express, { type Express } from "express";
-import authRouter from "./routes/authRouter.ts";
+import authRouter from "./routes/authRouter.js";
 import { type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
-import { authenticate } from "./middleware/authMiddleware.ts";
+import { authenticate } from "@middleware/authMiddleware.js";
 
 const app: Express = express();
 

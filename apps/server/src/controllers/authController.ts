@@ -1,14 +1,14 @@
 import { type Request, type Response } from "express";
-import { usersTable } from "../database/schema.ts";
+import { usersTable } from "@database/schema.js";
 import { eq } from "drizzle-orm";
 import {
 	clearCookie,
 	generateJWT,
 	saveCookie,
 	verifyPassword,
-} from "../utils/authUtils.ts";
-import { COOKIE_NAMES } from "../constants.ts";
-import { db } from "../database/db.ts";
+} from "@utils/authUtils.js";
+import { COOKIE_NAMES } from "@/constants.js";
+import { db } from "@database/db.js";
 import * as argon2 from "argon2";
 
 export async function loginController(req: Request, res: Response) {

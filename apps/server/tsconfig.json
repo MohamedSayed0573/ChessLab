@@ -2,6 +2,18 @@
 	"extends": ["../../tsconfig.json"],
 	"include": ["src"],
 	"compilerOptions": {
-		"rootDir": "src"
+		"rootDir": "src",
+		"baseUrl": ".",
+		"ignoreDeprecations": "6.0",
+		"paths": {
+			"@/*": ["src/*"],
+			"@middleware/*": ["src/middlewares/*"],
+			"@controllers/*": ["src/controllers/*"],
+			"@routes/*": ["src/routes/*"],
+			"@sockets/*": ["src/sockets/*"],
+			"@app-types/*": ["src/types/*"],
+			"@utils/*": ["src/utils/*"],
+			"@database/*": ["src/database/*"]
+		}
 	}
 }

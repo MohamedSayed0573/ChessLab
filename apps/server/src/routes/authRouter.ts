@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { requireAuth, requireGuest } from "../middleware/authMiddleware.ts";
+import { requireAuth, requireGuest } from "@middleware/authMiddleware.js";
 import {
 	loginController,
 	logoutController,
 	meController,
 	registerController,
 	removeController,
-} from "../controllers/authController.ts";
+} from "@controllers/authController.js";
 
 const router: Router = Router();
 

@@ -1,5 +1,5 @@
 import type { Response } from "express";
-import type { CookieName, JwtPayload } from "../types/types.ts";
+import type { CookieName, JwtPayload } from "@app-types/types.ts";
 import * as jwt from "jsonwebtoken";
 import * as argon2 from "argon2";
 
