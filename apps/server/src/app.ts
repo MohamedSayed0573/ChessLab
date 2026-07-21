@@ -4,9 +4,11 @@ import { type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
 import { authenticate } from "@middleware/authMiddleware.js";
 import { AppError } from "./errors.js";
+import helmet from "helmet";
 
 const app: Express = express();
 
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
