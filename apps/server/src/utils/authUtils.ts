@@ -1,6 +1,6 @@
 import type { CookieOptions, Response } from "express";
 import type { CookieName, JwtPayload } from "@app-types/types.ts";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import * as argon2 from "argon2";
 
 export function generateJWT(payload: JwtPayload) {
