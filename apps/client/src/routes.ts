@@ -11,4 +11,6 @@ export const routes = {
 			path: (roomId: string) => `/play/game/${roomId}`,
 		},
 	},
+
+	signup: "/signup",
 } as const;

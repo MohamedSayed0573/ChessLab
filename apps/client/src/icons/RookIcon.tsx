@@ -1,8 +1,16 @@
-export default function RookIcon({ color }: { color: string }) {
+export default function RookIcon({
+	color = "#9FD668",
+	width = "27",
+	height = "30",
+}: {
+	color?: string;
+	width?: string;
+	height?: string;
+}) {
 	return (
 		<svg
-			width="27"
-			height="30"
+			width={width}
+			height={height}
 			viewBox="0 0 27 30"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
