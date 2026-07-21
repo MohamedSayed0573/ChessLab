@@ -25,8 +25,8 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
 	let statusCode = 500;
 
 	if (err instanceof AppError) {
-		message = err.message;
 		statusCode = err.statusCode;
+		message = err.message;
 	}
 
 	res.status(statusCode).json({
@@ -36,7 +36,10 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
 });
 
 app.use((req: Request, res: Response) => {
-	res.status(404).send("Page Not Found");
+	res.status(404).json({
+		success: false,
+		message: "Page Not Found",
+	});
 });
 
 export default app;

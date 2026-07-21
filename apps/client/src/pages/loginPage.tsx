@@ -3,7 +3,7 @@ import RookIcon from "../icons/RookIcon";
 import { useState } from "react";
 import useUser from "../hooks/useUser";
 
-export default function SignUpPage() {
+export default function LoginPage() {
 	const user = useUser();
 	if (user) {
 		<Navigate to="/" replace />;
@@ -24,23 +24,23 @@ export default function SignUpPage() {
 				</div>
 			</section>
 
-			<section className="grid place-items-center bg-[#151310] p-20 py-10">
+			<section className="grid place-items-center bg-[#151310] p-20">
 				<div className="flex flex-1 flex-col">
 					<div className="mb-10 flex flex-col gap-2">
 						<span className="text-3xl font-bold text-[#E8E1DC]">
-							Create Account
+							Log In
 						</span>
 						<span className="text-lg text-[#C2C9B6]">
-							Sign up to start playing and learning.
+							Sign in to your account.
 						</span>
 					</div>
 
 					<Form />
 
 					<div className="mt-8 flex gap-1">
-						<p>Already have an account?</p>
-						<NavLink to="/login" className="text-[#9FD668]">
-							Sign In
+						<p>Don't have an account?</p>
+						<NavLink to="/signup" className="text-[#9FD668]">
+							Sign Up
 						</NavLink>
 					</div>
 				</div>
@@ -57,22 +57,18 @@ function Form() {
 
 		const formData = new FormData(e.currentTarget);
 
-		const name = formData.get("name");
-		const username = formData.get("username");
 		const email = formData.get("email");
 		const password = formData.get("password");
 
 		const res = await fetch(
-			`${import.meta.env.VITE_SERVER_URL}/auth/register`,
+			`${import.meta.env.VITE_SERVER_URL}/auth/login`,
 			{
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					name,
 					email,
 					password,
-					username,
 				}),
 			},
 		);
@@ -94,32 +90,6 @@ function Form() {
 				className="flex flex-col gap-5 font-mono text-sm font-medium"
 				onSubmit={submitForm}
 			>
-				<div className="flex flex-col gap-2">
-					<label className="text-[#C2C9B6]" htmlFor="name">
-						Name
-					</label>
-					<input
-						id="name"
-						name="name"
-						type="text"
-						placeholder="Enter your Name"
-						className="rounded-md border border-[#42493A] bg-[#221F1C] px-4 py-3 text-[#6B7280]"
-						required
-					/>
-				</div>
-				<div className="flex flex-col gap-2">
-					<label className="text-[#C2C9B6]" htmlFor="username">
-						Username
-					</label>
-					<input
-						id="username"
-						name="username"
-						type="text"
-						placeholder="Enter your username"
-						className="rounded-md border border-[#42493A] bg-[#221F1C] px-4 py-3 text-[#6B7280]"
-						required
-					/>
-				</div>
 				<div className="flex flex-col gap-2">
 					<label className="text-[#C2C9B6]" htmlFor="email">
 						Email
@@ -151,10 +121,9 @@ function Form() {
 					type="submit"
 					className="rounded-md bg-[#81B64C] py-3 text-sm font-medium text-white hover:cursor-pointer hover:bg-[#5A6150]"
 				>
-					Register
+					Log In
 				</button>
 			</form>
-
 			{error && (
 				<div className="mt-4 rounded-md bg-[#221F1C] px-4 py-3 text-sm text-red-500">
 					{error}
