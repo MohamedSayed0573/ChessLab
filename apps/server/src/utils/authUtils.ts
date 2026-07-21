@@ -1,4 +1,4 @@
-import type { Response } from "express";
+import type { CookieOptions, Response } from "express";
 import type { CookieName, JwtPayload } from "@app-types/types.ts";
 import * as jwt from "jsonwebtoken";
 import * as argon2 from "argon2";
@@ -9,18 +9,23 @@ export function generateJWT(payload: JwtPayload) {
 	});
 }
 
+const COOKIES_OPTIONS: CookieOptions = {
+	maxAge: Number(process.env.COOKIE_EXPIRES_IN_MS),
+	secure: process.env.NODE_ENV === "production",
+	httpOnly: true,
+	sameSite: "lax",
+};
+
 export function saveCookie(
 	res: Response,
 	cookieName: CookieName,
-	cookieValue: string | Record<string, unknown>,
+	cookiePayload: string,
 ) {
-	res.cookie(cookieName, cookieValue, {
-		maxAge: Number(process.env.COOKIE_EXPIRES_IN_MS),
-	});
+	res.cookie(cookieName, cookiePayload, COOKIES_OPTIONS);
 }
 
 export function clearCookie(res: Response, cookieName: CookieName) {
-	res.clearCookie(cookieName);
+	res.clearCookie(cookieName, COOKIES_OPTIONS);
 }
 
 export async function verifyPassword(
