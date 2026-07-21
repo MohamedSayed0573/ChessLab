@@ -1,6 +1,6 @@
 import type { GameOverInfo } from "@chesslab/shared/types";
 import { Chess } from "chess.js";
-import { io } from "../index.ts";
+import { io } from "@/index.js";
 
 type Game = {
 	id: string;
