@@ -2,9 +2,11 @@ import { useContext } from "react";
 import { cn } from "../utils/cn";
 import { NavLink } from "react-router";
 import { NavBarContext } from "../contexts/navBarContext";
+import useUser from "../hooks/useUser";
 
 export default function DesktopNav() {
 	const { collapsed: isCollapsed, toggle } = useContext(NavBarContext);
+	const user = useUser();
 
 	return (
 		<aside
@@ -49,7 +51,30 @@ export default function DesktopNav() {
 				<SidebarItem to="/watch" icon="visibility" label="Watch" />
 			</nav>
 			<nav className="border-t border-zinc-800 pt-2">
-				<SidebarItem to="/settings" icon="settings" label="Settings" />
+				{!user && (
+					<>
+						<SidebarItem to="/login" icon="login" label="Login" />
+						<SidebarItem
+							to="/signup"
+							icon="person_add"
+							label="Signup"
+						/>
+					</>
+				)}
+				{user && (
+					<>
+						<SidebarItem
+							to="/profile"
+							icon="account_circle"
+							label="Profile"
+						/>
+						<SidebarItem
+							to="/settings"
+							icon="settings"
+							label="Settings"
+						/>
+					</>
+				)}
 			</nav>
 		</aside>
 	);
@@ -76,10 +101,15 @@ function SidebarItem({
 						? "bg-lime-500 text-black"
 						: "text-zinc-300 hover:bg-zinc-800",
 					isPending && "cursor-wait",
-					iconOnly && "justify-center",
+					iconOnly && "group relative justify-center",
 				)
 			}
 		>
+			{iconOnly && (
+				<span className="absolute left-full ml-3 rounded-md bg-zinc-900 px-2 py-1 text-sm whitespace-nowrap text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+					{label}
+				</span>
+			)}
 			<span className="material-symbols-outlined">{icon}</span>
 			{!iconOnly && <span>{label}</span>}
 		</NavLink>
