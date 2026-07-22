@@ -13,7 +13,7 @@ const COOKIES_OPTIONS: CookieOptions = {
 	maxAge: Number(process.env.COOKIE_EXPIRES_IN_MS),
 	secure: process.env.NODE_ENV === "production",
 	httpOnly: true,
-	sameSite: "lax",
+	sameSite: "none",
 };
 
 export function saveCookie(
