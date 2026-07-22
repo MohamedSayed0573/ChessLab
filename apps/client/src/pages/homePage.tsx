@@ -15,7 +15,15 @@ export default function HomePage() {
 
 	return (
 		<div className="p-20">
-			<div>{user?.name}</div>
+			{user && (
+				<div>
+					{Object.entries(user).map(([key, value]) => (
+						<div key={key}>
+							<strong>{key}:</strong> {String(value)}
+						</div>
+					))}
+				</div>
+			)}
 			<button
 				onClick={signout}
 				className="rounded-md bg-[#9FD668] px-4 py-2 text-sm font-medium text-[#151310] hover:cursor-pointer hover:bg-[#8AC85A]"
