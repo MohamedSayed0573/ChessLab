@@ -29,7 +29,7 @@ export default function useCreateGame() {
 					setErrorMessage("Failed to create game");
 					return;
 				}
-				navigate(routes.play.game.path(roomId));
+				navigate(routes.game.path(roomId));
 			});
 		} catch (err) {
 			setErrorMessage(err instanceof Error ? err.message : String(err));

@@ -19,10 +19,7 @@ export default function App() {
 				<Route path="/" element={<Layout />}>
 					<Route path={routes.home} element={<HomePage />} />
 
-					<Route
-						path={routes.play.computer}
-						element={<ComputerGame />}
-					/>
+					<Route path={routes.computer} element={<ComputerGame />} />
 
 					<Route element={<NotLoggedIn />}>
 						<Route path={routes.signup} element={<SignUpPage />} />
@@ -36,7 +33,7 @@ export default function App() {
 						/>
 
 						<Route
-							path={routes.play.game.pattern}
+							path={routes.game.pattern}
 							element={<PlayerGame />}
 						/>
 					</Route>

@@ -6,7 +6,6 @@ export default function MobileBottomNav() {
 		<aside className="fixed bottom-0 left-0 max-h-22 w-full border-r border-[#424A35] bg-[#221F1C] p-1 text-white transition-all duration-300 sm:hidden">
 			<nav className="flex items-center justify-between text-[#C2C9B6]">
 				<SidebarItem to="/" icon="home" label="home" />
-				<SidebarItem to="/play" icon="play_circle" label="Play" />
 				<SidebarItem to="/puzzles" icon="extension" label="Puzzles" />
 				<SidebarItem to="/learn" icon="menu_book" label="Learn" />
 				<SidebarItem to="/watch" icon="visibility" label="Watch" />

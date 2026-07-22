@@ -1,13 +1,11 @@
 export const routes = {
 	home: "/",
 
-	play: {
-		computer: "/computer",
+	computer: "/computer",
 
-		game: {
-			pattern: "/game/:roomId",
-			path: (roomId: string) => `/game/${roomId}`,
-		},
+	game: {
+		pattern: "/game/:roomId",
+		path: (roomId: string) => `/game/${roomId}`,
 	},
 
 	signup: "/signup",

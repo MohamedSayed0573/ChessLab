@@ -33,7 +33,7 @@ export default function PlayPage() {
 					description="Play against various engine levels
 							from beginner to grandmaster."
 					btnLabel="Play against Computer"
-					btnOnClick={() => navigate(routes.play.computer)}
+					btnOnClick={() => navigate(routes.computer)}
 				/>
 				<JoinRoomCard />
 			</CardsSection>

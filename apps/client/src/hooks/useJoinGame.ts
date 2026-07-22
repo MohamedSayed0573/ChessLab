@@ -32,7 +32,7 @@ export default function useJoinGame() {
 				setErrorMessage(res.message);
 				return;
 			}
-			navigate(routes.play.game.path(trimmedRoomId));
+			navigate(routes.game.path(trimmedRoomId));
 		});
 	};
 
