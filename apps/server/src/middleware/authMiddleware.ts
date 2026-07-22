@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { ConflictError, UnauthorizedError } from "@/errors.js";
 import type { JwtPayload } from "@app-types/types.js";
 import { clearCookie } from "@/utils/authUtils.js";

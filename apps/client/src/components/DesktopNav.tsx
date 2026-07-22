@@ -42,6 +42,7 @@ export default function DesktopNav() {
 					"gap-5 pt-18": isCollapsed,
 				})}
 			>
+				<SidebarItem to="/" icon="home" label="home" />
 				<SidebarItem to="/play" icon="play_circle" label="Play" />
 				<SidebarItem to="/puzzles" icon="extension" label="Puzzles" />
 				<SidebarItem to="/learn" icon="menu_book" label="Learn" />

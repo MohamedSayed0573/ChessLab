@@ -26,3 +26,13 @@ export type GameOverInfo = {
 		| "Draw";
 	winner: "w" | "b" | "d";
 };
+
+export type User = {
+	id: number;
+	name: string;
+	username: string;
+	email: string;
+	elo: number;
+	createdAt: string;
+	updatedAt?: string | null;
+};

@@ -7,6 +7,8 @@ import PlayerGame from "./pages/playerGame";
 import ComputerGame from "./pages/computerGame";
 import NotFound from "./pages/notFound";
 import PlayPage from "./pages/playPage";
+import SignUpPage from "./pages/signupPage";
+import LoginPage from "./pages/loginPage";
 
 export default function App() {
 	return (
@@ -23,6 +25,8 @@ export default function App() {
 						path={routes.play.computer}
 						element={<ComputerGame />}
 					/>
+					<Route path={routes.signup} element={<SignUpPage />} />
+					<Route path={routes.login} element={<LoginPage />} />
 					<Route path="*" element={<NotFound />} />
 				</Route>
 			</Routes>
