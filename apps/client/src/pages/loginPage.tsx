@@ -1,14 +1,8 @@
-import { Navigate, NavLink } from "react-router";
+import { NavLink } from "react-router";
 import RookIcon from "../icons/RookIcon";
 import { useState } from "react";
-import useUser from "../hooks/useUser";
 
 export default function LoginPage() {
-	const user = useUser();
-	if (user) {
-		<Navigate to="/" replace />;
-	}
-
 	return (
 		<main className="font-hanken grid h-full md:grid-cols-2">
 			<section className="hidden place-items-center border-r border-[#42493A] bg-[#221F1C] md:grid">

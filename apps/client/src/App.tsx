@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 
-import Layout from "./components/Layout";
+import Layout from "./layouts/Layout";
 import { routes } from "./routes";
 import HomePage from "./pages/homePage";
 import PlayerGame from "./pages/playerGame";
@@ -9,6 +9,9 @@ import NotFound from "./pages/notFound";
 import PlayPage from "./pages/playPage";
 import SignUpPage from "./pages/signupPage";
 import LoginPage from "./pages/loginPage";
+import ProfilePage from "./pages/profilePage";
+import RequireAuth from "./layouts/RequireAuth";
+import NotLoggedIn from "./layouts/NotLoggedIn";
 
 export default function App() {
 	return (
@@ -17,16 +20,29 @@ export default function App() {
 				<Route path="/" element={<Layout />}>
 					<Route path={routes.home} element={<HomePage />} />
 					<Route path={routes.play.root} element={<PlayPage />} />
-					<Route
-						path={routes.play.game.pattern}
-						element={<PlayerGame />}
-					/>
+
 					<Route
 						path={routes.play.computer}
 						element={<ComputerGame />}
 					/>
-					<Route path={routes.signup} element={<SignUpPage />} />
-					<Route path={routes.login} element={<LoginPage />} />
+
+					<Route element={<NotLoggedIn />}>
+						<Route path={routes.signup} element={<SignUpPage />} />
+						<Route path={routes.login} element={<LoginPage />} />
+					</Route>
+
+					<Route element={<RequireAuth />}>
+						<Route
+							path={routes.profile}
+							element={<ProfilePage />}
+						/>
+
+						<Route
+							path={routes.play.game.pattern}
+							element={<PlayerGame />}
+						/>
+					</Route>
+
 					<Route path="*" element={<NotFound />} />
 				</Route>
 			</Routes>

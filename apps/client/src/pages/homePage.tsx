@@ -14,7 +14,7 @@ export default function HomePage() {
 	};
 
 	return (
-		<>
+		<div className="p-20">
 			<div>{user?.name}</div>
 			<button
 				onClick={signout}
@@ -34,6 +34,6 @@ export default function HomePage() {
 			>
 				Login
 			</NavLink>
-		</>
+		</div>
 	);
 }
