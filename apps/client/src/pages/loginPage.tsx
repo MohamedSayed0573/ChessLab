@@ -55,33 +55,41 @@ function Form() {
 	async function submitForm(e: React.SubmitEvent<HTMLFormElement>) {
 		e.preventDefault();
 
-		const formData = new FormData(e.currentTarget);
+		try {
+			const formData = new FormData(e.currentTarget);
 
-		const email = formData.get("email");
-		const password = formData.get("password");
+			const email = formData.get("email");
+			const password = formData.get("password");
 
-		const res = await fetch(
-			`${import.meta.env.VITE_SERVER_URL}/auth/login`,
-			{
-				method: "POST",
-				credentials: "include",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					email,
-					password,
-				}),
-			},
-		);
+			const res = await fetch(
+				`${import.meta.env.VITE_SERVER_URL}/auth/login`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						email,
+						password,
+					}),
+				},
+			);
 
-		const data = await res.json();
-		console.log(data);
+			const data = await res.json();
+			console.log(data);
 
-		if (!data.success) {
-			setError(data.message);
-			return;
+			if (!data.success) {
+				setError(data.message);
+				return;
+			}
+
+			window.location.href = "/";
+		} catch (err) {
+			setError(
+				`An error occurred. Please try again. ${
+					err instanceof Error ? err.message : String(err)
+				}`,
+			);
 		}
-
-		window.location.href = "/";
 	}
 
 	return (
