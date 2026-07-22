@@ -45,7 +45,6 @@ export default function DesktopNav() {
 				})}
 			>
 				<SidebarItem to="/" icon="home" label="home" />
-				<SidebarItem to="/play" icon="play_circle" label="Play" />
 				<SidebarItem to="/puzzles" icon="extension" label="Puzzles" />
 				<SidebarItem to="/learn" icon="menu_book" label="Learn" />
 				<SidebarItem to="/watch" icon="visibility" label="Watch" />

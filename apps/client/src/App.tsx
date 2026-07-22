@@ -6,7 +6,6 @@ import HomePage from "./pages/homePage";
 import PlayerGame from "./pages/playerGame";
 import ComputerGame from "./pages/computerGame";
 import NotFound from "./pages/notFound";
-import PlayPage from "./pages/playPage";
 import SignUpPage from "./pages/signupPage";
 import LoginPage from "./pages/loginPage";
 import ProfilePage from "./pages/profilePage";
@@ -19,7 +18,6 @@ export default function App() {
 			<Routes>
 				<Route path="/" element={<Layout />}>
 					<Route path={routes.home} element={<HomePage />} />
-					<Route path={routes.play.root} element={<PlayPage />} />
 
 					<Route
 						path={routes.play.computer}
