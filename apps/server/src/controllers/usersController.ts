@@ -43,7 +43,7 @@ export async function updateAvatarController(req: Request, res: Response) {
 	await db
 		.update(usersTable)
 		.set({
-			avatarUrl: fileKey,
+			avatarUrl: `${env.S3_PUBLIC_URL}/${fileKey}`,
 		})
 		.where(eq(usersTable.id, userId));
 
@@ -59,6 +59,6 @@ export async function updateAvatarController(req: Request, res: Response) {
 
 	res.status(200).json({
 		success: true,
-		avatarUrl: fileKey,
+		avatarUrl: `${env.S3_PUBLIC_URL}/${fileKey}`,
 	});
 }

@@ -95,10 +95,12 @@ export default function ProfilePage() {
 
 				<table>
 					<thead className="border-b border-[#373431] bg-[#2C2927] text-left text-base font-medium text-[#BAB9B8]">
-						<th className="p-4">OPPONENT</th>
-						<th className="p-4">FORMAT</th>
-						<th className="p-4">RESULT</th>
-						<th className="p-4">DATE</th>
+						<tr>
+							<th className="p-4">OPPONENT</th>
+							<th className="p-4">FORMAT</th>
+							<th className="p-4">RESULT</th>
+							<th className="p-4">DATE</th>
+						</tr>
 					</thead>
 
 					<tbody className="text-sm text-[#E8E1DC]">
@@ -164,9 +166,7 @@ function AvatarSection() {
 	const { user, setUser } = useUser();
 	if (!user) return;
 
-	const imageUrl = user.avatarUrl
-		? `${import.meta.env.VITE_S3_PUBLIC_URL}/${user.avatarUrl}`
-		: undefined;
+	const imageUrl = user.avatarUrl;
 
 	async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0];
@@ -198,19 +198,19 @@ function AvatarSection() {
 				<span className="material-symbols-outlined absolute right-2 bottom-2">
 					edit
 				</span>
-
 				<input
 					id="profile-image"
 					type="file"
 					className="hidden"
 					onChange={handleImageChange}
 				/>
-
-				<img
-					src={imageUrl}
-					alt="Profile"
-					className="h-37.5 w-37.5 object-cover"
-				/>
+				{imageUrl && (
+					<img
+						src={imageUrl}
+						alt="Profile"
+						className="h-37.5 w-37.5 object-cover"
+					/>
+				)}
 			</label>
 		</div>
 	);

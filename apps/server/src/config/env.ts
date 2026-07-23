@@ -17,6 +17,7 @@ const envSchema = z.object({
 	S3_ACCESS_KEY_ID: z.string().optional(),
 	S3_SECRET_ACCESS_KEY: z.string().optional(),
 	S3_BUCKET_NAME: z.string().optional(),
+	S3_PUBLIC_URL: z.url().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
