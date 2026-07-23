@@ -7,6 +7,7 @@ export const usersTable = pgTable("users", {
 	email: varchar({ length: 255 }).notNull().unique(),
 	passwordHashed: varchar({ length: 255 }).notNull(),
 	elo: integer().default(400).notNull(),
+	avatarUrl: varchar({ length: 255 }),
 	createdAt: date().defaultNow().notNull(),
 	updatedAt: date(),
 });

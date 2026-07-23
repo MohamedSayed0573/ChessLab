@@ -1,5 +1,6 @@
 import express, { type Express, type NextFunction } from "express";
 import authRouter from "./routes/authRouter.js";
+import usersRouter from "./routes/usersRouter.js";
 import { type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
 import { authenticate } from "@middleware/authMiddleware.js";
@@ -17,6 +18,7 @@ app.use(cookieParser());
 app.use(authenticate);
 
 app.use("/auth", authRouter);
+app.use("/users", usersRouter);
 
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
 	console.error(err);

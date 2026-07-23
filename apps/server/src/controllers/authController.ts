@@ -8,7 +8,7 @@ import {
 	verifyPassword,
 } from "@utils/authUtils.js";
 import { COOKIE_NAMES } from "@/constants.js";
-import { db } from "@database/db.js";
+import { db } from "@/config/db.js";
 import * as argon2 from "argon2";
 import { BadRequestError, UnauthorizedError } from "@/errors.js";
 
@@ -77,14 +77,7 @@ export async function registerController(req: Request, res: Response) {
 export async function meController(req: Request, res: Response) {
 	const userId = req.userId;
 	const [user] = await db
-		.select({
-			id: usersTable.id,
-			name: usersTable.name,
-			username: usersTable.username,
-			email: usersTable.email,
-			elo: usersTable.elo,
-			createdAt: usersTable.createdAt,
-		})
+		.select()
 		.from(usersTable)
 		.where(eq(usersTable.id, userId));
 

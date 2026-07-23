@@ -10,6 +10,7 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.1092.0",
 		"@chesslab/shared": "workspace:*",
 		"@tailwindcss/vite": "^4.3.2",
 		"@vercel/analytics": "^2.0.1",

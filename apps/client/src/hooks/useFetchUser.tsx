@@ -25,5 +25,5 @@ export default function useFetchUser() {
 		fetchUser();
 	}, []);
 
-	return [user];
+	return [user, setUser] as const;
 }

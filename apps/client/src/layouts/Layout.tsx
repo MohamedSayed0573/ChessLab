@@ -8,10 +8,10 @@ import useFetchUser from "../hooks/useFetchUser";
 
 export default function Layout({ className }: { className?: string }) {
 	const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
-	const [user] = useFetchUser();
+	const [user, setUser] = useFetchUser();
 
 	return (
-		<userContext.Provider value={user}>
+		<userContext.Provider value={{ user, setUser }}>
 			<NavBarContext.Provider
 				value={{
 					collapsed: isCollapsed,

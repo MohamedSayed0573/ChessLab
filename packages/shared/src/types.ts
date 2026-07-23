@@ -33,6 +33,7 @@ export type User = {
 	username: string;
 	email: string;
 	elo: number;
+	avatarUrl?: string | undefined;
 	createdAt: string;
-	updatedAt?: string | null;
+	updatedAt?: string | undefined;
 };

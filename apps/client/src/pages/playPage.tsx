@@ -1,7 +1,7 @@
 import useUser from "../hooks/useUser";
 
 export default function HomePage() {
-	const user = useUser();
+	const { user } = useUser();
 
 	return (
 		<div>

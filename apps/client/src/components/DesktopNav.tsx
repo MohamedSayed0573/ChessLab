@@ -6,7 +6,7 @@ import useUser from "../hooks/useUser";
 
 export default function DesktopNav() {
 	const { collapsed: isCollapsed, toggle } = useContext(NavBarContext);
-	const user = useUser();
+	const { user } = useUser();
 
 	return (
 		<aside

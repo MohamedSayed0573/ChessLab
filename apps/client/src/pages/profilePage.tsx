@@ -1,7 +1,8 @@
+import { useState } from "react";
 import useUser from "../hooks/useUser";
 
 export default function ProfilePage() {
-	const user = useUser();
+	const { user } = useUser();
 	if (!user) return;
 
 	return (
@@ -9,7 +10,7 @@ export default function ProfilePage() {
 			{/* Profile Section */}
 			<section className="flex gap-8 p-8">
 				{/* Profile Image */}
-				<div className="h-37.5 w-37.5 bg-white"></div>
+				<AvatarSection />
 
 				{/* Profile Info */}
 				<div className="flex flex-col">
@@ -45,12 +46,7 @@ export default function ProfilePage() {
 
 					{/* Profile Buttons */}
 					<div className="flex gap-3 pt-6">
-						<button
-							type="button"
-							className="bg-[#9FD668] px-6 py-2 text-base font-medium text-[#1C3700]"
-						>
-							Edit Profile
-						</button>
+						<EditProfileBtn />
 						<LogoutBtn />
 					</div>
 				</div>
@@ -119,6 +115,26 @@ export default function ProfilePage() {
 	);
 }
 
+function EditProfileBtn() {
+	const [openDropdown, setOpenDropdown] = useState(false);
+
+	function handleEditProfile() {
+		setOpenDropdown(!openDropdown);
+	}
+
+	return (
+		<>
+			<button
+				type="button"
+				className="cursor-pointer bg-[#9FD668] px-6 py-2 text-base font-medium text-[#1C3700]"
+				onClick={handleEditProfile}
+			>
+				Edit Profile
+			</button>
+		</>
+	);
+}
+
 function LogoutBtn() {
 	async function handleLogout() {
 		try {
@@ -141,5 +157,61 @@ function LogoutBtn() {
 		>
 			Logout
 		</button>
+	);
+}
+
+function AvatarSection() {
+	const { user, setUser } = useUser();
+	if (!user) return;
+
+	const imageUrl = user.avatarUrl
+		? `${import.meta.env.VITE_S3_PUBLIC_URL}/${user.avatarUrl}`
+		: undefined;
+
+	async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		const formData = new FormData();
+		formData.append("avatar", file);
+
+		const res = await fetch(
+			`${import.meta.env.VITE_SERVER_URL}/users/me/avatar`,
+			{
+				method: "PATCH",
+				body: formData,
+				credentials: "include",
+			},
+		);
+
+		if (res.ok) {
+			const data = await res.json();
+			setUser((prev) =>
+				prev ? { ...prev, avatarUrl: data.avatarUrl } : prev,
+			);
+		}
+	}
+
+	return (
+		<div className="relative h-37.5 w-37.5 bg-white">
+			<label htmlFor="profile-image" className="cursor-pointer">
+				<span className="material-symbols-outlined absolute right-2 bottom-2">
+					edit
+				</span>
+
+				<input
+					id="profile-image"
+					type="file"
+					className="hidden"
+					onChange={handleImageChange}
+				/>
+
+				<img
+					src={imageUrl}
+					alt="Profile"
+					className="h-37.5 w-37.5 object-cover"
+				/>
+			</label>
+		</div>
 	);
 }
