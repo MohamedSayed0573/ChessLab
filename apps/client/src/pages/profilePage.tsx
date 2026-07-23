@@ -17,9 +17,7 @@ export default function ProfilePage() {
 				<div className="flex flex-col">
 					{/* Profile Header */}
 					<header>
-						<h1 className="text-4xl font-bold text-[#E8E1DC]">
-							{user.name}
-						</h1>
+						<UsernameSection />
 						<p className="pb-4 text-base text-[#9FD668]">
 							@{user.username}
 						</p>
@@ -47,8 +45,8 @@ export default function ProfilePage() {
 
 					{/* Profile Buttons */}
 					<div className="flex gap-3 pt-6">
-						<EditProfileBtn />
 						<LogoutBtn />
+						<DeleteAccountBtn />
 					</div>
 				</div>
 			</section>
@@ -118,21 +116,54 @@ export default function ProfilePage() {
 	);
 }
 
-function EditProfileBtn() {
-	const [openDropdown, setOpenDropdown] = useState(false);
+function DeleteAccountBtn() {
+	const [open, setOpen] = useState(false);
 
-	function handleEditProfile() {
-		setOpenDropdown(!openDropdown);
+	function handleDeleteAccount() {
+		fetch(`${import.meta.env.VITE_SERVER_URL}/users/me`, {
+			method: "DELETE",
+			credentials: "include",
+		}).catch(() => console.error("Error: Failed to delete account"));
+
+		window.location.href = "/";
 	}
 
 	return (
 		<>
 			<button
 				type="button"
-				className="cursor-pointer bg-[#9FD668] px-6 py-2 text-base font-medium text-[#1C3700]"
-				onClick={handleEditProfile}
+				className="cursor-pointer bg-[#E34A4A] px-6 py-2 text-base font-medium text-[#FFFFFF]"
+				onClick={() => setOpen(!open)}
 			>
-				Edit Profile
+				<p>Remove Account</p>
+
+				{open && (
+					<div className="fixed inset-0 flex cursor-default items-center justify-center bg-black/50">
+						<div className="rounded-lg bg-[#2C2927] p-6">
+							<h3 className="mb-4 text-xl font-bold text-[#E8E1DC]">
+								Are you sure you want to remove your account?
+							</h3>
+							<div className="flex justify-evenly gap-4">
+								<button
+									className="flex cursor-pointer items-center justify-center bg-[#9FD668] px-6 py-2 text-base font-medium text-[#1C3700]"
+									onClick={handleDeleteAccount}
+								>
+									<span className="material-symbols-outlined">
+										check
+									</span>
+								</button>
+
+								<button
+									type="button"
+									className="cursor-pointer border border-[#373431] px-6 py-2 text-base font-medium text-[#E8E1DC] hover:bg-[#373431]"
+									onClick={() => setOpen(!open)}
+								>
+									Close
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
 			</button>
 		</>
 	);
@@ -155,7 +186,7 @@ function LogoutBtn() {
 	return (
 		<button
 			type="button"
-			className="cursor-pointer border border-[#373431] px-6 py-2 text-base font-medium text-[#E8E1DC] hover:bg-[#373431]"
+			className="cursor-pointer border border-[#8F3036] bg-[#2A1618] px-6 py-2 text-base font-medium text-[#FF6B6B] hover:bg-[#373431]"
 			onClick={handleLogout}
 		>
 			Logout
@@ -212,5 +243,60 @@ function AvatarSection() {
 				/>
 			</label>
 		</div>
+	);
+}
+
+function UsernameSection() {
+	const { user, setUser } = useUser();
+	const [open, setOpen] = useState(false);
+	const [name, setName] = useState<string>(user!.name);
+
+	async function handleEditBtn() {
+		// Return if the name hasn't changed
+		if (name === user?.name) return setOpen(!open);
+
+		setUser((prev) => (prev ? { ...prev, name } : prev));
+
+		fetch(`${import.meta.env.VITE_SERVER_URL}/users/me/username`, {
+			method: "PATCH",
+			body: JSON.stringify({
+				newUsername: name,
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+		}).catch(() => console.error("Error: Failed to change username"));
+
+		setOpen(!open);
+	}
+
+	return (
+		<span className="relative text-4xl font-bold text-[#E8E1DC]">
+			{open ? (
+				<>
+					<input
+						className="w-[50%] rounded border p-1"
+						type="text"
+						placeholder={user?.name}
+						value={name}
+						onChange={(e) => setName(e.currentTarget.value)}
+					/>
+					<button
+						className="ml-2 cursor-pointer"
+						onClick={handleEditBtn}
+					>
+						<span className="material-symbols-outlined">check</span>
+					</button>
+				</>
+			) : (
+				<button type="button" onClick={() => setOpen(!open)}>
+					<span className="material-symbols-outlined absolute top-2 left-full ml-2 cursor-pointer">
+						edit
+					</span>
+					{user?.name}
+				</button>
+			)}
+		</span>
 	);
 }

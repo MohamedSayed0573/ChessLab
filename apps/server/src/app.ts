@@ -4,7 +4,7 @@ import usersRouter from "./routes/usersRouter.js";
 import { type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
 import { authenticate } from "@middleware/authMiddleware.js";
-import { AppError } from "./errors.js";
+import { AppError, UnauthorizedError } from "./errors.js";
 import { env } from "@config/env.js";
 import cors from "cors";
 import helmet from "helmet";
@@ -22,7 +22,9 @@ app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
-	console.error(err);
+	if (!(err instanceof UnauthorizedError)) {
+		console.error(err);
+	}
 
 	let message = "Internal Server Error";
 	let statusCode = 500;

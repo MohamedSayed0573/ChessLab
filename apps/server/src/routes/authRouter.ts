@@ -10,7 +10,6 @@ import {
 	logoutController,
 	meController,
 	registerController,
-	removeController,
 } from "@controllers/authController.js";
 
 const router: Router = Router();
@@ -27,7 +26,5 @@ router.post(
 router.get("/me", requireAuth, meController);
 
 router.post("/logout", requireAuth, logoutController);
-
-router.post("/remove", requireAuth, removeController);
 
 export default router;

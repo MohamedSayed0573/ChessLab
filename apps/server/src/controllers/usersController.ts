@@ -6,6 +6,8 @@ import { db } from "@/config/db.js";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { env } from "@/config/env.js";
+import { BadRequestError } from "@/errors.js";
+import { clearCookie } from "@/utils/authUtils.js";
 
 export async function updateAvatarController(req: Request, res: Response) {
 	const userId = req.userId;
@@ -60,5 +62,50 @@ export async function updateAvatarController(req: Request, res: Response) {
 	res.status(200).json({
 		success: true,
 		avatarUrl: `${env.S3_PUBLIC_URL}/${fileKey}`,
+	});
+}
+
+export async function updateUsernameController(req: Request, res: Response) {
+	const userId = req.userId;
+	const { newUsername } = req.body;
+
+	await db
+		.update(usersTable)
+		.set({
+			name: newUsername,
+		})
+		.where(eq(usersTable.id, userId));
+
+	res.status(200).json({
+		success: true,
+		newUsername: newUsername,
+	});
+}
+
+export async function removeController(req: Request, res: Response) {
+	const userId = req.userId;
+
+	const [removedUser] = await db
+		.delete(usersTable)
+		.where(eq(usersTable.id, userId))
+		.returning({ id: usersTable.id });
+
+	if (!removedUser) throw new BadRequestError("The user does not exist");
+
+	clearCookie(res, "jwt");
+
+	try {
+		await s3.send(
+			new DeleteObjectCommand({
+				Bucket: env.S3_BUCKET_NAME,
+				Key: `avatars/${userId}`,
+			}),
+		);
+	} catch (err) {
+		console.error(`Failed to delete avatars for user ${userId}: `, err);
+	}
+
+	res.status(200).json({
+		success: true,
 	});
 }

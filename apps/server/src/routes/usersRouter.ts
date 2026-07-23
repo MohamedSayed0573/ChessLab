@@ -1,9 +1,24 @@
 import { upload } from "@/config/multer.js";
-import { updateAvatarController } from "@/controllers/usersController.js";
+import {
+	updateAvatarController,
+	updateUsernameController,
+	removeController,
+} from "@/controllers/usersController.js";
 import { requireAuth } from "@/middleware/authMiddleware.js";
+import { validate } from "@/middleware/validation/authValidation.js";
+import { patchUsernameSchema } from "@/middleware/validation/userValidation.js";
 import { Router } from "express";
 
 const router: Router = Router();
+
+router.patch(
+	"/me/username",
+	requireAuth,
+	validate(patchUsernameSchema),
+	updateUsernameController,
+);
+
+router.delete("/me", requireAuth, removeController);
 
 router.patch(
 	"/me/avatar",

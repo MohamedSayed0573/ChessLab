@@ -95,19 +95,3 @@ export async function logoutController(req: Request, res: Response) {
 		success: true,
 	});
 }
-
-export async function removeController(req: Request, res: Response) {
-	const userId = req.userId;
-
-	const [removedUser] = await db
-		.delete(usersTable)
-		.where(eq(usersTable.id, userId))
-		.returning({ id: usersTable.id });
-	if (!removedUser) throw new BadRequestError("The user does not exist");
-
-	clearCookie(res, "jwt");
-
-	res.status(200).json({
-		success: true,
-	});
-}
