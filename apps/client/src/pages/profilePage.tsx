@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useUser from "../hooks/useUser";
+import defaultAvatar from "../assets/default-avatar.svg";
 
 export default function ProfilePage() {
 	const { user } = useUser();
@@ -204,13 +205,11 @@ function AvatarSection() {
 					className="hidden"
 					onChange={handleImageChange}
 				/>
-				{imageUrl && (
-					<img
-						src={imageUrl}
-						alt="Profile"
-						className="h-37.5 w-37.5 object-cover"
-					/>
-				)}
+				<img
+					src={imageUrl || defaultAvatar}
+					alt="Profile"
+					className="h-37.5 w-37.5 object-cover"
+				/>
 			</label>
 		</div>
 	);
