@@ -2,16 +2,17 @@ import type { CookieOptions, Response } from "express";
 import type { CookieName, JwtPayload } from "@app-types/types.ts";
 import jwt from "jsonwebtoken";
 import * as argon2 from "argon2";
+import { env } from "@/config/env.js";
 
 export function generateJWT(payload: JwtPayload) {
-	return jwt.sign(payload, process.env.JWT_SECRET!, {
-		expiresIn: Number(process.env.JWT_EXPIRES_IN_S),
+	return jwt.sign(payload, env.JWT_SECRET, {
+		expiresIn: env.JWT_EXPIRES_IN_S,
 	});
 }
 
 const COOKIES_OPTIONS: CookieOptions = {
-	maxAge: Number(process.env.COOKIE_EXPIRES_IN_MS),
-	secure: process.env.NODE_ENV === "production",
+	maxAge: env.COOKIE_EXPIRES_IN_MS,
+	secure: env.NODE_ENV === "production",
 	httpOnly: true,
 	sameSite: "lax",
 };

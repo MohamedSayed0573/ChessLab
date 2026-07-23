@@ -5,6 +5,7 @@ import { usersTable } from "@/database/schema.js";
 import { db } from "@/config/db.js";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
+import { env } from "@/config/env.js";
 
 export async function updateAvatarController(req: Request, res: Response) {
 	const userId = req.userId;
@@ -22,7 +23,7 @@ export async function updateAvatarController(req: Request, res: Response) {
 
 	await s3.send(
 		new PutObjectCommand({
-			Bucket: process.env.S3_BUCKET_NAME!,
+			Bucket: env.S3_BUCKET_NAME!,
 			Key: fileKey,
 			Body: file.buffer,
 		}),
@@ -50,7 +51,7 @@ export async function updateAvatarController(req: Request, res: Response) {
 	if (oldAvatarUrl) {
 		s3.send(
 			new DeleteObjectCommand({
-				Bucket: process.env.S3_BUCKET_NAME!,
+				Bucket: env.S3_BUCKET_NAME!,
 				Key: oldAvatarUrl,
 			}),
 		).catch((err) => console.error("Failed to delete old avatar", err));

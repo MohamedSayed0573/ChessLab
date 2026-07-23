@@ -14,7 +14,8 @@
 			"@sockets/*": ["src/sockets/*"],
 			"@app-types/*": ["src/types/*"],
 			"@utils/*": ["src/utils/*"],
-			"@database/*": ["src/database/*"]
+			"@database/*": ["src/database/*"],
+			"@config/*": ["src/config/*"]
 		}
 	}
 }

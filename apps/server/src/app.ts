@@ -5,13 +5,14 @@ import { type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
 import { authenticate } from "@middleware/authMiddleware.js";
 import { AppError } from "./errors.js";
+import { env } from "@config/env.js";
 import cors from "cors";
 import helmet from "helmet";
 
 const app: Express = express();
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL!, credentials: true }));
+app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
