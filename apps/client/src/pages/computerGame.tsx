@@ -2,74 +2,110 @@ import {
 	type ChessboardOptions,
 	type PieceDropHandlerArgs,
 } from "react-chessboard";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Chess } from "chess.js";
 import ChessBoard from "../components/chessBoard";
+import useStockfish from "../hooks/useStockfish";
+import useTimer from "../hooks/useTimer";
+import { Timer } from "../components/Timer";
+import SideBar from "../components/chessSidebar";
+import type { GameOverInfo } from "@chesslab/shared/types";
 
 export default function ComputerChessBoard() {
-	// create a chess game using a ref to always have access to the latest game state within closures and maintain the game state across renders
-	const chessGameRef = useRef(new Chess());
-
-	// track the current position of the chess game in state to trigger a re-render of the chessboard
+	const [chessGame] = useState(() => new Chess());
 	const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
-	// make a random "CPU" move
-	function makeRandomMove() {
-		// get all possible moves`
-		const possibleMoves = chessGameRef.current.moves();
+	const [turn, setTurn] = useState<"w" | "b">("w");
+	const [gameHistory, setGameHistory] = useState<string[]>([]);
+	const gameOverInfo = getGameOverInfo(chessGame);
+	const [side] = useState<"w" | "b">(() => (Math.random() < 0.5 ? "w" : "b"));
 
-		// exit if the game is over
-		if (
-			chessGameRef.current.isGameOver() ||
-			chessGameRef.current.turn() !== "b"
-		) {
-			return;
-		}
+	const { whiteDisplayTime, blackDisplayTime } = useTimer({
+		turn,
+		gameOverInfo,
+	});
 
-		// pick a random move
-		const randomMove =
-			possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+	useStockfish({
+		chessGame,
+		turn,
+		stockfishSide: side === "w" ? "b" : "w",
+		onMove: () => {
+			setChessPosition(chessGame.fen());
+			setTurn(chessGame.turn());
+			setGameHistory(chessGame.history());
+		},
+	});
 
-		// make the move
-		chessGameRef.current.move(randomMove!);
-
-		// update the position state
-		setChessPosition(chessGameRef.current.fen());
-	}
-
-	// handle piece drop
 	function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
-		// type narrow targetSquare potentially being null (e.g. if dropped off board)
-		if (!targetSquare || chessGameRef.current.turn() !== "w") {
+		if (chessGame.isGameOver()) return false;
+
+		if (!targetSquare) {
 			return false;
 		}
+
 		try {
-			chessGameRef.current.move({
+			const move = chessGame.move({
 				from: sourceSquare,
 				to: targetSquare,
-				promotion: "q", // always promote to a queen for example simplicity
+				promotion: "q",
 			});
 
-			setChessPosition(chessGameRef.current.fen());
+			if (!move) return false;
 
-			setTimeout(makeRandomMove, 500);
+			setChessPosition(chessGame.fen());
+			setTurn(chessGame.turn());
+			setGameHistory(chessGame.history());
 
 			return true;
 		} catch {
-			// return false as the move was not successful
 			return false;
 		}
 	}
 
 	const chessboardOptions: ChessboardOptions = {
-		position: chessPosition,
+		position: chessPosition!,
 		onPieceDrop,
-		id: "play-vs-random",
-		//boardOrientation: color,
+		boardOrientation: side === "w" ? "white" : "black",
 	};
 
 	return (
-		<>
+		<div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312] sm:mr-120">
+			<Timer
+				side={side === "w" ? "b" : "w"}
+				blackDisplayTime={blackDisplayTime}
+				whiteDisplayTime={whiteDisplayTime}
+				currentTurn={turn}
+				playerName="Stockfish"
+			/>
 			<ChessBoard chessboardOptions={chessboardOptions} />
-		</>
+			<Timer
+				currentTurn={turn}
+				side={side}
+				blackDisplayTime={blackDisplayTime}
+				whiteDisplayTime={whiteDisplayTime}
+				playerName="Player"
+			/>
+			<SideBar gameHistory={gameHistory} gameOverInfo={gameOverInfo} />
+		</div>
 	);
+}
+
+function getGameOverInfo(chess: Chess): GameOverInfo | undefined {
+	if (!chess.isGameOver()) return undefined;
+
+	if (chess.isCheckmate()) {
+		return {
+			reason: "Checkmate",
+			winner: chess.turn() === "w" ? "b" : "w",
+		};
+	} else if (chess.isStalemate()) {
+		return { reason: "Stalemate", winner: "d" };
+	} else if (chess.isInsufficientMaterial()) {
+		return { reason: "Insufficient Material", winner: "d" };
+	} else if (chess.isThreefoldRepetition()) {
+		return { reason: "Threefold Repetition", winner: "d" };
+	} else if (chess.isDrawByFiftyMoves()) {
+		return { reason: "Fifty-Move Rule", winner: "d" };
+	} else {
+		return { reason: "Draw", winner: "d" };
+	}
 }
