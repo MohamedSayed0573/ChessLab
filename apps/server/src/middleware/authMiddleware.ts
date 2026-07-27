@@ -2,15 +2,14 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { ConflictError, UnauthorizedError } from "@/errors.js";
 import type { JwtPayload } from "@app-types/types.js";
-import { clearCookie } from "@/utils/authUtils.js";
 import { env } from "@/config/env.js";
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
-	const token = req.cookies.jwt;
-	if (!token) return next();
+	const accessToken = req.headers.authorization?.split(" ")[1];
+	if (!accessToken) return next();
 
 	try {
-		const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+		const payload = jwt.verify(accessToken, env.JWT_SECRET) as JwtPayload;
 
 		req.userId = payload.userId;
 		return next();
@@ -18,7 +17,6 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 		console.log(
 			err instanceof Error ? err.message : "Error: Invalid Token",
 		);
-		clearCookie(res, "jwt");
 		return next();
 	}
 }

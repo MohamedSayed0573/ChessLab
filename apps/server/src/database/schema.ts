@@ -1,4 +1,12 @@
-import { date, integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import {
+	bigint,
+	boolean,
+	date,
+	integer,
+	pgTable,
+	timestamp,
+	varchar,
+} from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -10,4 +18,14 @@ export const usersTable = pgTable("users", {
 	avatarUrl: varchar({ length: 255 }),
 	createdAt: date().defaultNow().notNull(),
 	updatedAt: date(),
+});
+
+export const refreshTokensTable = pgTable("refreshTokens", {
+	refreshToken: varchar({ length: 255 }).notNull().unique().primaryKey(),
+	userId: integer()
+		.notNull()
+		.references(() => usersTable.id, { onDelete: "cascade" }),
+	expiredAt: bigint({ mode: "number" }).notNull(),
+	consumed: boolean().default(false),
+	removedAt: timestamp(),
 });

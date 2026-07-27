@@ -10,8 +10,13 @@ const envSchema = z.object({
 	DATABASE_URL: z.string().min(1),
 
 	JWT_SECRET: z.string().min(10),
-	JWT_EXPIRES_IN_S: z.coerce.number().int().positive().default(86400), // 1 day in seconds
-	COOKIE_EXPIRES_IN_MS: z.coerce.number().int().positive().default(86400000), // 1 day in milliseconds
+	JWT_EXPIRES_IN_S: z.coerce.number().int().positive().default(604800), // 7 days in seconds
+	COOKIE_EXPIRES_IN_MS: z.coerce.number().int().positive().default(604800000), // 7 days in milliseconds
+	REFRESH_TOKEN_EXPIRES_IN: z.coerce
+		.number()
+		.int()
+		.positive()
+		.default(604800000), // 7 Days
 
 	S3_ENDPOINT: z.url().optional(),
 	S3_ACCESS_KEY_ID: z.string().optional(),
