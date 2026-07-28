@@ -1,6 +1,6 @@
 import { useApi } from "../../hooks/useApi";
 import useUser from "../../hooks/useUser";
-import defaultAvatar from "../assets/default-avatar.svg";
+import defaultAvatar from "../../assets/default-avatar.svg";
 
 export function AvatarSection() {
 	const { user, setUser } = useUser();
