@@ -1,6 +1,9 @@
 import { useState } from "react";
 import useUser from "../hooks/useUser";
 import defaultAvatar from "../assets/default-avatar.svg";
+import useAuth from "../hooks/useAuth";
+import { useApi } from "../hooks/useApi";
+import { useNavigate } from "react-router";
 
 export default function ProfilePage() {
 	const { user } = useUser();
@@ -118,14 +121,26 @@ export default function ProfilePage() {
 
 function DeleteAccountBtn() {
 	const [open, setOpen] = useState(false);
+	const { logout } = useAuth();
+	const fetchApi = useApi();
+	const navigate = useNavigate();
 
-	function handleDeleteAccount() {
-		fetch(`${import.meta.env.VITE_SERVER_URL}/users/me`, {
-			method: "DELETE",
-			credentials: "include",
-		}).catch(() => console.error("Error: Failed to delete account"));
+	async function handleDeleteAccount() {
+		try {
+			const res = await fetchApi("/users/me", {
+				method: "DELETE",
+			});
 
-		window.location.href = "/";
+			if (!res.ok) {
+				console.error("Error: Failed to delete account");
+				return;
+			}
+			navigate("/");
+
+			logout();
+		} catch (err) {
+			console.error("Error: Failed to delete account", err);
+		}
 	}
 
 	return (
@@ -170,14 +185,19 @@ function DeleteAccountBtn() {
 }
 
 function LogoutBtn() {
+	const { logout } = useAuth();
+	const fetchApi = useApi();
+	const navigate = useNavigate();
+
 	async function handleLogout() {
 		try {
-			await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, {
+			await fetchApi("/auth/logout", {
 				method: "POST",
-				credentials: "include",
 			});
 
-			window.location.href = "/";
+			navigate("/");
+
+			logout();
 		} catch (err) {
 			console.error("Logout failed:", err);
 		}
@@ -196,6 +216,7 @@ function LogoutBtn() {
 
 function AvatarSection() {
 	const { user, setUser } = useUser();
+	const fetchApi = useApi();
 	if (!user) return;
 
 	const imageUrl = user.avatarUrl;
@@ -207,14 +228,10 @@ function AvatarSection() {
 		const formData = new FormData();
 		formData.append("avatar", file);
 
-		const res = await fetch(
-			`${import.meta.env.VITE_SERVER_URL}/users/me/avatar`,
-			{
-				method: "PATCH",
-				body: formData,
-				credentials: "include",
-			},
-		);
+		const res = await fetchApi("/users/me/avatar", {
+			method: "PATCH",
+			body: formData,
+		});
 
 		if (res.ok) {
 			const data = await res.json();
@@ -250,6 +267,7 @@ function UsernameSection() {
 	const { user, setUser } = useUser();
 	const [open, setOpen] = useState(false);
 	const [name, setName] = useState<string>(user!.name);
+	const fetchApi = useApi();
 
 	async function handleEditBtn() {
 		// Return if the name hasn't changed
@@ -257,7 +275,7 @@ function UsernameSection() {
 
 		setUser((prev) => (prev ? { ...prev, name } : prev));
 
-		fetch(`${import.meta.env.VITE_SERVER_URL}/users/me/username`, {
+		fetchApi("/users/me/username", {
 			method: "PATCH",
 			body: JSON.stringify({
 				newUsername: name,
@@ -265,7 +283,6 @@ function UsernameSection() {
 			headers: {
 				"Content-Type": "application/json",
 			},
-			credentials: "include",
 		}).catch(() => console.error("Error: Failed to change username"));
 
 		setOpen(!open);

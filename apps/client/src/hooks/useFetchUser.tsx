@@ -1,17 +1,24 @@
 import type { User } from "@chesslab/shared/types";
 import { useEffect, useState } from "react";
+import { useApi } from "./useApi";
+import useAuth from "./useAuth";
 
 export default function useFetchUser() {
 	const [user, setUser] = useState<User | undefined>(undefined);
+	const { accessToken } = useAuth();
+	const fetchApi = useApi();
+
+	if (!accessToken && user !== undefined) {
+		setUser(undefined);
+	}
+
 	useEffect(() => {
+		if (!accessToken) return;
+
 		async function fetchUser() {
-			const res = await fetch(
-				`${import.meta.env.VITE_SERVER_URL}/auth/me`,
-				{
-					method: "GET",
-					credentials: "include",
-				},
-			);
+			const res = await fetchApi("/auth/me", {
+				method: "GET",
+			});
 
 			if (!res.ok) {
 				setUser(undefined);
@@ -23,7 +30,7 @@ export default function useFetchUser() {
 		}
 
 		fetchUser();
-	}, []);
+	}, [fetchApi, accessToken]);
 
 	return [user, setUser] as const;
 }

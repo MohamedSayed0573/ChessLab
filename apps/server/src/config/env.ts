@@ -4,7 +4,10 @@ const envSchema = z.object({
 	NODE_ENV: z
 		.enum(["development", "production", "test"])
 		.default("development"),
-	CLIENT_URL: z.url().default("http://localhost:3000"),
+	CLIENT_URL: z
+		.string()
+		.transform((urls) => urls.split(",").map((url) => url.trim()))
+		.default(["http://localhost:5173"]),
 	PORT: z.coerce.number().int().positive().default(3000),
 
 	DATABASE_URL: z.string().min(1),

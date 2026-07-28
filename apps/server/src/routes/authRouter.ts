@@ -26,7 +26,7 @@ router.post(
 
 router.get("/me", requireAuth, meController);
 
-router.get("/refresh", refreshController);
+router.post("/refresh", refreshController);
 
 router.post("/logout", requireAuth, logoutController);
 

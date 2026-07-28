@@ -3,5 +3,6 @@ import { userContext } from "../contexts/userContext";
 
 export default function useUser() {
 	const { user, setUser } = useContext(userContext);
-	return { user, setUser };
+	const removeUser = () => setUser(undefined);
+	return { user, setUser, removeUser };
 }
