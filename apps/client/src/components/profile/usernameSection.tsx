@@ -22,7 +22,7 @@ export function UsernameSection() {
 			headers: {
 				"Content-Type": "application/json",
 			},
-		}).catch(() => console.error("Error: Failed to change username"));
+		});
 
 		setOpen(!open);
 	}
