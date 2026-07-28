@@ -1,6 +1,7 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import RookIcon from "../icons/RookIcon";
 import { useState } from "react";
+import useAuth from "../hooks/useAuth";
 
 export default function LoginPage() {
 	return (
@@ -45,6 +46,8 @@ export default function LoginPage() {
 
 function Form() {
 	const [error, setError] = useState<string | undefined>(undefined);
+	const { setAccessToken } = useAuth();
+	const navigate = useNavigate();
 
 	async function submitForm(e: React.SubmitEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -76,7 +79,9 @@ function Form() {
 				return;
 			}
 
-			window.location.href = "/";
+			setAccessToken(data.accessToken);
+
+			navigate("/");
 		} catch (err) {
 			setError(
 				`An error occurred. Please try again. ${

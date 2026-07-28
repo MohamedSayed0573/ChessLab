@@ -10,6 +10,7 @@ import {
 	logoutController,
 	meController,
 	registerController,
+	refreshController,
 } from "@controllers/authController.js";
 
 const router: Router = Router();
@@ -24,6 +25,8 @@ router.post(
 );
 
 router.get("/me", requireAuth, meController);
+
+router.post("/refresh", refreshController);
 
 router.post("/logout", requireAuth, logoutController);
 

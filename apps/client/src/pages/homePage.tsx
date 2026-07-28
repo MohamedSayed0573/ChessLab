@@ -12,7 +12,7 @@ export default function PlayPage() {
 	const navigate = useNavigate();
 	const { createGame, errorMessage, clearMessage } = useCreateGame();
 	return (
-		<div className="font-hanken flex h-screen flex-col gap-12 bg-[#151310] p-12">
+		<div className="font-hanken flex h-screen flex-col gap-12 bg-[#151310] px-12 py-10">
 			<HeroSection>
 				<Hero />
 				<BoardCard />
@@ -48,7 +48,7 @@ export default function PlayPage() {
 }
 
 function CardsSection({ children }: { children: React.ReactNode }) {
-	return <div className="grid grid-cols-3 gap-6">{children}</div>;
+	return <div className="grid flex-1 grid-cols-3 gap-6">{children}</div>;
 }
 
 function HeroSection({ children }: { children: React.ReactNode }) {
@@ -93,7 +93,7 @@ function JoinRoomCard() {
 	const { errorMessage, joinGame, clearMessage } = useJoinGame();
 
 	return (
-		<div className="flex flex-col gap-3 rounded-2xl border border-[#42493A]/30 bg-[#2C2927] p-6">
+		<div className="flex flex-col justify-center gap-3 rounded-2xl border border-[#42493A]/30 bg-[#2C2927] p-6">
 			<span className="text-base text-[#E8E1DC]">Join Private Room</span>
 			<div className="relative rounded-lg bg-[#151310]">
 				<input
