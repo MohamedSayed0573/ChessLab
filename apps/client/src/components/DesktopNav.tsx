@@ -27,17 +27,20 @@ export default function DesktopNav() {
 			</button>
 
 			{!isCollapsed && (
-				<div className="flex flex-col gap-2 pb-8">
+				<header className="flex flex-col gap-2 pb-8">
 					<NavLink
 						to="/"
-						className="text-2xl font-bold text-[#E8E1DC]"
+						className="flex items-center gap-2 text-2xl font-bold text-[#E8E1DC]"
 					>
-						Grandmaster
+						<span className="material-symbols-outlined">
+							chess_queen
+						</span>
+						ChessLab
 					</NavLink>
-					<span className="text-sm font-medium text-[#C2C9B6]">
-						Professional Interface
-					</span>
-				</div>
+					<p className="text-sm font-medium text-[#C2C9B6]">
+						Professional Chess Platform
+					</p>
+				</header>
 			)}
 			<nav
 				className={cn("flex flex-1 flex-col gap-3 text-[#C2C9B6]", {
