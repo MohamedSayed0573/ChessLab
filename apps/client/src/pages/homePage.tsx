@@ -93,7 +93,7 @@ function JoinRoomCard() {
 	const { errorMessage, joinGame, clearMessage } = useJoinGame();
 
 	return (
-		<div className="flex flex-col gap-3 rounded-2xl border border-[#42493A]/30 bg-[#2C2927] p-6">
+		<div className="flex flex-col justify-center gap-3 rounded-2xl border border-[#42493A]/30 bg-[#2C2927] p-6">
 			<span className="text-base text-[#E8E1DC]">Join Private Room</span>
 			<div className="relative rounded-lg bg-[#151310]">
 				<input
