@@ -15,7 +15,8 @@
 			"@app-types/*": ["src/types/*"],
 			"@utils/*": ["src/utils/*"],
 			"@database/*": ["src/database/*"],
-			"@config/*": ["src/config/*"]
+			"@config/*": ["src/config/*"],
+			"@game/*": ["src/game/*"]
 		}
 	}
 }
