@@ -12,6 +12,6 @@ export const io = new Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMa
 	{ cors: { origin: "*" } },
 );
 
-server.listen(env.PORT, () => {
+server.listen(env.PORT, "0.0.0.0", () => {
 	console.log(`Server is running at http://localhost:${env.PORT}`);
 });
