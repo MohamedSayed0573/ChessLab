@@ -1,21 +1,18 @@
-import {
-	type ChessboardOptions,
-	type PieceDropHandlerArgs,
-} from "react-chessboard";
+import { type ChessboardOptions, type PieceDropHandlerArgs } from "react-chessboard";
 import { useState } from "react";
 import { Chess } from "chess.js";
 import ChessBoard from "../components/chessBoard";
 import useStockfish from "../hooks/useStockfish";
 import useTimer from "../hooks/useTimer";
 import { Timer } from "../components/Timer";
-import SideBar from "../components/chessSidebar";
+//import SideBar from "../components/chessSidebar";
 import type { GameOverInfo } from "@chesslab/shared/types";
 
 export default function ComputerChessBoard() {
 	const [chessGame] = useState(() => new Chess());
 	const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
 	const [turn, setTurn] = useState<"w" | "b">("w");
-	const [gameHistory, setGameHistory] = useState<string[]>([]);
+	const [, setGameHistory] = useState<string[]>([]);
 	const gameOverInfo = getGameOverInfo(chessGame);
 	const [side] = useState<"w" | "b">(() => (Math.random() < 0.5 ? "w" : "b"));
 
@@ -84,7 +81,7 @@ export default function ComputerChessBoard() {
 				whiteDisplayTime={whiteDisplayTime}
 				playerName="Player"
 			/>
-			<SideBar gameHistory={gameHistory} gameOverInfo={gameOverInfo} />
+			{/*<SideBar gameHistory={gameHistory} gameOverInfo={gameOverInfo} />*/}
 		</div>
 	);
 }

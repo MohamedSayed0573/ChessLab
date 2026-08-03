@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router";
 import RookIcon from "../icons/RookIcon";
 import { useState } from "react";
 import useAuth from "../hooks/useAuth";
+import { useApi } from "../hooks/useApi";
 
 export default function SignUpPage() {
 	return (
@@ -9,12 +10,10 @@ export default function SignUpPage() {
 			<section className="hidden place-items-center border-r border-[#42493A] bg-[#221F1C] md:grid">
 				<div className="flex flex-col items-center justify-center gap-4 px-12 text-center">
 					<RookIcon width="45" height="50" />
-					<h1 className="text-5xl font-extrabold text-[#E8E1DC]">
-						Master Your Game
-					</h1>
+					<h1 className="text-5xl font-extrabold text-[#E8E1DC]">Master Your Game</h1>
 					<p className="text-lg text-[#C2C9B6]">
-						Join the most advanced chess platform. Analyze games,
-						learn from grandmasters, and elevate your rating.
+						Join the most advanced chess platform. Analyze games, learn from
+						grandmasters, and elevate your rating.
 					</p>
 				</div>
 			</section>
@@ -22,9 +21,7 @@ export default function SignUpPage() {
 			<section className="grid place-items-center bg-[#151310] p-20 py-10">
 				<div className="flex flex-1 flex-col">
 					<div className="mb-10 flex flex-col gap-2">
-						<span className="text-3xl font-bold text-[#E8E1DC]">
-							Create Account
-						</span>
+						<span className="text-3xl font-bold text-[#E8E1DC]">Create Account</span>
 						<span className="text-lg text-[#C2C9B6]">
 							Sign up to start playing and learning.
 						</span>
@@ -47,6 +44,7 @@ export default function SignUpPage() {
 function Form() {
 	const [error, setError] = useState<string | undefined>(undefined);
 	const { setAccessToken } = useAuth();
+	const fetchApi = useApi();
 	const navigate = useNavigate();
 
 	async function submitForm(e: React.SubmitEvent<HTMLFormElement>) {
@@ -59,20 +57,16 @@ function Form() {
 		const email = formData.get("email");
 		const password = formData.get("password");
 
-		const res = await fetch(
-			`${import.meta.env.VITE_SERVER_URL}/auth/register`,
-			{
-				method: "POST",
-				credentials: "include",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					name,
-					email,
-					password,
-					username,
-				}),
-			},
-		);
+		const res = await fetchApi("/auth/register", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				name,
+				email,
+				password,
+				username,
+			}),
+		});
 
 		const data = await res.json();
 		console.log(data);

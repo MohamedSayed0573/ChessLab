@@ -1,7 +1,8 @@
-import { NavLink, useNavigate } from "react-router";
+import { NavLink, useLocation, useNavigate, type Location } from "react-router";
 import RookIcon from "../icons/RookIcon";
 import { useState } from "react";
 import useAuth from "../hooks/useAuth";
+import { useApi } from "../hooks/useApi";
 
 export default function LoginPage() {
 	return (
@@ -9,12 +10,10 @@ export default function LoginPage() {
 			<section className="hidden place-items-center border-r border-[#42493A] bg-[#221F1C] md:grid">
 				<div className="flex flex-col items-center justify-center gap-4 px-12 text-center">
 					<RookIcon width="45" height="50" />
-					<h1 className="text-5xl font-extrabold text-[#E8E1DC]">
-						Master Your Game
-					</h1>
+					<h1 className="text-5xl font-extrabold text-[#E8E1DC]">Master Your Game</h1>
 					<p className="text-lg text-[#C2C9B6]">
-						Join the most advanced chess platform. Analyze games,
-						learn from grandmasters, and elevate your rating.
+						Join the most advanced chess platform. Analyze games, learn from
+						grandmasters, and elevate your rating.
 					</p>
 				</div>
 			</section>
@@ -22,12 +21,8 @@ export default function LoginPage() {
 			<section className="grid place-items-center bg-[#151310] p-20">
 				<div className="flex flex-1 flex-col">
 					<div className="mb-10 flex flex-col gap-2">
-						<span className="text-3xl font-bold text-[#E8E1DC]">
-							Log In
-						</span>
-						<span className="text-lg text-[#C2C9B6]">
-							Sign in to your account.
-						</span>
+						<span className="text-3xl font-bold text-[#E8E1DC]">Log In</span>
+						<span className="text-lg text-[#C2C9B6]">Sign in to your account.</span>
 					</div>
 
 					<Form />
@@ -46,11 +41,16 @@ export default function LoginPage() {
 
 function Form() {
 	const [error, setError] = useState<string | undefined>(undefined);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { setAccessToken } = useAuth();
+	const fetchApi = useApi();
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	async function submitForm(e: React.SubmitEvent<HTMLFormElement>) {
 		e.preventDefault();
+		setError(undefined);
+		setIsSubmitting(true);
 
 		try {
 			const formData = new FormData(e.currentTarget);
@@ -58,36 +58,36 @@ function Form() {
 			const email = formData.get("email");
 			const password = formData.get("password");
 
-			const res = await fetch(
-				`${import.meta.env.VITE_SERVER_URL}/auth/login`,
-				{
-					method: "POST",
-					credentials: "include",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						email,
-						password,
-					}),
-				},
-			);
+			const res = await fetchApi("/auth/login", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					email,
+					password,
+				}),
+			});
 
-			const data = await res.json();
-			console.log(data);
+			const data = (await res.json()) as {
+				success: boolean;
+				message?: string;
+				accessToken?: string;
+			};
 
-			if (!data.success) {
-				setError(data.message);
+			if (!res.ok || !data.success || !data.accessToken) {
+				setError(data.message ?? `Login failed (${res.status})`);
 				return;
 			}
 
 			setAccessToken(data.accessToken);
 
-			navigate("/");
+			const from = (location.state as { from?: Location } | null)?.from;
+			navigate(from ?? "/", { replace: true });
 		} catch (err) {
 			setError(
-				`An error occurred. Please try again. ${
-					err instanceof Error ? err.message : String(err)
-				}`,
+				`Unable to reach the server. ${err instanceof Error ? err.message : String(err)}`,
 			);
+		} finally {
+			setIsSubmitting(false);
 		}
 	}
 
@@ -126,9 +126,10 @@ function Form() {
 
 				<button
 					type="submit"
-					className="rounded-md bg-[#81B64C] py-3 text-sm font-medium text-white hover:cursor-pointer hover:bg-[#5A6150]"
+					disabled={isSubmitting}
+					className="rounded-md bg-[#81B64C] py-3 text-sm font-medium text-white hover:cursor-pointer hover:bg-[#5A6150] disabled:cursor-wait disabled:opacity-60"
 				>
-					Log In
+					{isSubmitting ? "Logging in…" : "Log In"}
 				</button>
 			</form>
 			{error && (

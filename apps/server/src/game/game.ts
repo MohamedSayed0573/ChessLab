@@ -1,4 +1,5 @@
-import type { GameState, PromotionPiece } from "@/types/chess.types.js";
+import type { PromotionPiece } from "@/types/chess.types.js";
+import type { GameStateEvent } from "@chesslab/shared/types";
 import { Chess } from "chess.js";
 import EventEmitter from "node:events";
 
@@ -8,7 +9,7 @@ export class Game extends EventEmitter {
 	private chess: Chess;
 	private whitePlayerId: string | undefined;
 	private blackPlayerId: string | undefined;
-	private gameState: GameState;
+	private GameStateEvent: GameStateEvent;
 	private isStarted: boolean;
 	private pendingDrawOffer: { offeredBy: "w" | "b" } | undefined;
 
@@ -26,7 +27,7 @@ export class Game extends EventEmitter {
 		super();
 
 		this.chess = new Chess(fen);
-		this.gameState = {
+		this.GameStateEvent = {
 			gameOver: false,
 			reason: undefined,
 			winnerColor: undefined,
@@ -52,13 +53,13 @@ export class Game extends EventEmitter {
 		const playerColor = this.getColor(playerId);
 
 		const timeout = setTimeout(() => {
-			this.gameState = {
+			this.GameStateEvent = {
 				gameOver: true,
 				reason: "Abandonment",
 				winnerColor: oppositeColor(playerColor),
 			};
 
-			this.emit("game-over", { gameState: this.gameState });
+			this.emit("game-over", { GameStateEvent: this.GameStateEvent });
 		}, 30_000);
 
 		if (playerColor === "w") {
@@ -94,13 +95,13 @@ export class Game extends EventEmitter {
 		this.lastMoveTime = Date.now();
 
 		this.whiteTimeout = setTimeout(() => {
-			this.gameState = {
+			this.GameStateEvent = {
 				gameOver: true,
 				reason: "Timeout",
 				winnerColor: "b",
 			};
 			this.emit("game-over", {
-				gameState: this.gameState,
+				GameStateEvent: this.GameStateEvent,
 			});
 		}, PLAYER_TIME);
 	}
@@ -167,11 +168,11 @@ export class Game extends EventEmitter {
 	}
 
 	isGameOver() {
-		return this.gameState.gameOver;
+		return this.GameStateEvent.gameOver;
 	}
 
-	getGameState() {
-		return this.gameState;
+	getGameStateEvent() {
+		return this.GameStateEvent;
 	}
 
 	getGameHistory() {
@@ -192,7 +193,7 @@ export class Game extends EventEmitter {
 		const color = this.getColor(playerId);
 		this.clearTurnTimers();
 
-		this.gameState = {
+		this.GameStateEvent = {
 			gameOver: true,
 			reason: "Resignation",
 			winnerColor: oppositeColor(color),
@@ -202,7 +203,7 @@ export class Game extends EventEmitter {
 	offerDraw(submittedByPlayerId: string) {
 		if (!this.isValidPlayerId(submittedByPlayerId)) throw new Error("Invalid Player Id");
 
-		if (this.gameState.gameOver) {
+		if (this.GameStateEvent.gameOver) {
 			throw new Error("The game is already over.");
 		}
 
@@ -226,7 +227,7 @@ export class Game extends EventEmitter {
 		}
 
 		this.clearTurnTimers();
-		this.gameState = {
+		this.GameStateEvent = {
 			gameOver: true,
 			reason: "Draw by Agreement",
 			winnerColor: "d",
@@ -255,8 +256,8 @@ export class Game extends EventEmitter {
 	}
 
 	private evaluateGameOverState(playerId: string) {
-		let reason: GameState["reason"];
-		let winnerColor: GameState["winnerColor"];
+		let reason: GameStateEvent["reason"];
+		let winnerColor: GameStateEvent["winnerColor"];
 		if (this.chess.isCheckmate()) {
 			reason = "Checkmate";
 			winnerColor = this.getColor(playerId);
@@ -270,7 +271,7 @@ export class Game extends EventEmitter {
 
 		this.clearDisconnectTimeouts();
 
-		this.gameState = {
+		this.GameStateEvent = {
 			gameOver: true,
 			reason,
 			winnerColor,
@@ -278,7 +279,7 @@ export class Game extends EventEmitter {
 	}
 
 	private assertPlayerCanMove(playerId: string) {
-		if (this.gameState.gameOver) {
+		if (this.GameStateEvent.gameOver) {
 			throw new Error("You can't make a move. The game is already over.");
 		}
 
@@ -314,12 +315,12 @@ export class Game extends EventEmitter {
 		}
 
 		if (this.whiteTimeMs <= 0 || this.blackTimeMs <= 0) {
-			this.gameState = {
+			this.GameStateEvent = {
 				gameOver: true,
 				reason: "Timeout",
 				winnerColor: this.whiteTimeMs <= 0 ? "b" : "w",
 			};
-			this.emit("game-over", { gameState: this.gameState });
+			this.emit("game-over", { GameStateEvent: this.GameStateEvent });
 			return true;
 		}
 
@@ -329,24 +330,24 @@ export class Game extends EventEmitter {
 	private scheduleTurnTimer() {
 		if (this.getTurn() === "w") {
 			this.whiteTimeout = setTimeout(() => {
-				this.gameState = {
+				this.GameStateEvent = {
 					gameOver: true,
 					reason: "Timeout",
 					winnerColor: "b",
 				};
 				this.emit("game-over", {
-					gameState: this.gameState,
+					GameStateEvent: this.GameStateEvent,
 				});
 			}, this.whiteTimeMs);
 		} else {
 			this.blackTimeout = setTimeout(() => {
-				this.gameState = {
+				this.GameStateEvent = {
 					gameOver: true,
 					reason: "Timeout",
 					winnerColor: "w",
 				};
 				this.emit("game-over", {
-					gameState: this.gameState,
+					GameStateEvent: this.GameStateEvent,
 				});
 			}, this.blackTimeMs);
 		}

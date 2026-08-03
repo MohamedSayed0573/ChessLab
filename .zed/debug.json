@@ -1,0 +1,35 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+[
+	{
+		"label": "Launch server (Node + tsx)",
+		"adapter": "JavaScript",
+		"type": "node",
+		"request": "launch",
+		"runtimeExecutable": "node",
+		"runtimeArgs": ["--import", "tsx"],
+		"program": "$ZED_WORKTREE_ROOT/apps/server/src/index.ts",
+		"cwd": "$ZED_WORKTREE_ROOT/apps/server",
+		"console": "integratedTerminal",
+		"sourceMaps": true,
+		"skipFiles": ["<node_internals>/**"],
+		"tcp_connection": {
+			"timeout": 10000
+		}
+	},
+	{
+		"label": "Attach server (Node inspector)",
+		"adapter": "JavaScript",
+		"type": "node",
+		"request": "attach",
+		"address": "127.0.0.1",
+		"port": 9229,
+		"cwd": "$ZED_WORKTREE_ROOT/apps/server",
+		"skipFiles": ["<node_internals>/**"],
+		"tcp_connection": {
+			"timeout": 10000
+		}
+	}
+]

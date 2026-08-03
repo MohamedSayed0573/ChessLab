@@ -1,19 +1,20 @@
 export type PlayerColor = "w" | "b";
 
-export type CreateGameRes = {
-	success: true;
-	roomId: string;
-	color: "w";
+export type CreateGameAck = {
+	gameId: string;
+	color: "w" | "b";
 };
 
-export type JoinGameRes =
+export type JoinGameAck =
 	| {
-			success: false;
-			message: string;
+			ok: true;
+			gameId: string;
+			color: "w" | "b";
+			opponentId: string;
 	  }
 	| {
-			success: true;
-			color: PlayerColor;
+			ok: false;
+			error: string;
 	  };
 
 export type GameOverInfo = {
@@ -25,6 +26,39 @@ export type GameOverInfo = {
 		| "Fifty-Move Rule"
 		| "Draw";
 	winner: "w" | "b" | "d";
+};
+
+export interface GameStateEvent {
+	gameOver: boolean;
+	reason:
+		| "Resignation"
+		| "Draw by Agreement"
+		| "Checkmate"
+		| "Stalemate"
+		| "Threefold Repetition"
+		| "Insufficient Material"
+		| "Fifty-Move Rule"
+		| "Timeout"
+		| "Abandonment"
+		| undefined;
+	winnerColor: "w" | "b" | "d" | undefined;
+}
+
+export type PlayerJoinedEvent = {
+	gameId: string;
+	color: PlayerColor;
+	opponentId: string;
+};
+
+export type MoveMadeEvent = {
+	fen: string;
+	turn: PlayerColor;
+};
+
+export type GameMoveEvent = {
+	from: string;
+	to: string;
+	promotion: string;
 };
 
 export type User = {

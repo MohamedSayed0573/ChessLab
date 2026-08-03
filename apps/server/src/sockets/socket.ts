@@ -1,21 +1,27 @@
-import { io } from "@/index.js";
 import { GameManager } from "@/game/gameManager.js";
-import { type JwtPayload } from "jsonwebtoken";
-import * as jwt from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import { env } from "@/config/env.js";
 import type { DefaultEventsMap, Socket, SocketData } from "socket.io";
+import type {
+	CreateGameAck,
+	JoinGameAck,
+	GameMoveEvent,
+	MoveMadeEvent,
+	PlayerJoinedEvent,
+} from "@chesslab/shared/types";
+import { io } from "@/io.js";
 const gameManager = new GameManager();
 
 // Authentication Middleware
 io.use((socket, next) => {
 	const token = socket.handshake.auth.token;
-	if (!token) throw new Error("unAuthorized");
+	if (!token) return next(new Error("Unauthorized"));
 
 	try {
 		const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
 		socket.data.userId = payload.userId;
 	} catch {
-		throw new Error("Unauthorized");
+		return next(new Error("Unauthorized"));
 	}
 
 	return next();
@@ -51,14 +57,14 @@ io.on("connection", (socket) => {
 
 	handleOnConnection(userId, socket);
 
-	socket.on("game:create", (cb) => {
+	socket.on("game:create", (cb: (reply: CreateGameAck) => void) => {
 		const { gameId, game } = gameManager.createGame(userId);
 		socket.join(gameId);
 		socket.data.gameInfo = { gameId, game };
 
-		game.on("game-over", ({ gameState }) => {
+		game.on("game-over", ({ GameStateEvent }) => {
 			io.to(gameId).emit("game:game-over", {
-				gameState,
+				GameStateEvent,
 			});
 		});
 
@@ -68,32 +74,41 @@ io.on("connection", (socket) => {
 		});
 	});
 
-	socket.on("game:join", (gameId: string, cb) => {
+	socket.on("game:join", (gameId: string, cb: (reply: JoinGameAck) => void) => {
 		const game = gameManager.joinGame(gameId, userId);
 		socket.join(gameId);
 		socket.data.gameInfo = { gameId, game };
 
 		game.on("game-over", () => {
 			io.to(gameId).emit("game:game-over", {
-				gameState: game.getGameState(),
+				GameStateEvent: game.getGameStateEvent(),
 			});
 		});
 
 		socket.emit("game:fen", { fen: game.getFEN(), turn: game.getTurn() });
-		socket.broadcast.emit("game:playerJoined", {
+
+		const opponentId = game.getMyOpponent(userId);
+
+		if (!opponentId) {
+			cb({ ok: false, error: "Could not find an opponent" });
+			return;
+		}
+
+		socket.to(gameId).emit("game:PlayerJoinedEvent", {
 			gameId,
 			color: game.getColor(userId),
-			opponent: game.getMyOpponent(userId),
-		});
+			opponentId,
+		} as PlayerJoinedEvent);
 
 		cb({
+			ok: true,
 			gameId,
 			color: game.getColor(userId),
-			opponent: game.getMyOpponent(userId),
+			opponentId,
 		});
 	});
 
-	socket.on("game:move", (from: string, to: string, promotion: string) => {
+	socket.on("game:move", ({ from, to, promotion }: GameMoveEvent): void => {
 		if (!socket.data.gameInfo) {
 			throw new Error("You are not in a game");
 		}
@@ -108,10 +123,10 @@ io.on("connection", (socket) => {
 			const fen = game.getFEN();
 			const turn = game.getTurn();
 
-			socket.to(gameId).emit("game:move-made", { fen, turn });
+			socket.to(gameId).emit("game:move-made", { fen, turn } as MoveMadeEvent);
 
 			if (game.isGameOver()) {
-				io.to(gameId).emit("game:game-over", { gameState: game.getGameState() });
+				io.to(gameId).emit("game:game-over", game.getGameStateEvent());
 			}
 		} catch (err) {
 			throw new Error(`Illegal Move ${err instanceof Error ? err.message : String(err)}`, {
@@ -170,7 +185,7 @@ io.on("connection", (socket) => {
 		socket.to(gameId).emit("game:player-disconnected");
 	});
 
-	socket.on("game:start", () => {
+	socket.emit("game:start", () => {
 		if (!socket.data.gameInfo) {
 			throw new Error("You are not in a game");
 		}

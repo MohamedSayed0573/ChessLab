@@ -7,20 +7,4 @@ export type GameInfo =
 	  }
 	| undefined;
 
-export interface GameState {
-	gameOver: boolean;
-	reason:
-		| "Resignation"
-		| "Draw by Agreement"
-		| "Checkmate"
-		| "Stalemate"
-		| "Threefold Repetition"
-		| "Insufficient Material"
-		| "Fifty-Move Rule"
-		| "Timeout"
-		| "Abandonment"
-		| undefined;
-	winnerColor: "w" | "b" | "d" | undefined;
-}
-
 export type PromotionPiece = "q" | "r" | "b" | "n";

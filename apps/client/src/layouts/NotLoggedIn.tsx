@@ -1,11 +1,15 @@
-import { Navigate, Outlet } from "react-router";
-import useUser from "../hooks/useUser";
+import { Navigate, Outlet, useLocation, type Location } from "react-router";
+import useAuth from "../hooks/useAuth";
 
 export default function NotLoggedIn() {
-	const { user } = useUser();
+	const { accessToken, isInitializing } = useAuth();
+	const location = useLocation();
+	const from = (location.state as { from?: Location } | null)?.from;
 
-	if (user) {
-		return <Navigate to="/" replace />;
+	if (isInitializing) return null;
+
+	if (accessToken) {
+		return <Navigate to={from ?? "/"} replace />;
 	}
 	return <Outlet />;
 }

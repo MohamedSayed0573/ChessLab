@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"start": "tsc -b && vite build && vite preview --port=5173",
+		"start": "tsc -b && vite build && vite preview",
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"tsc": "tsc --noEmit",

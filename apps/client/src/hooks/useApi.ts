@@ -1,3 +1,4 @@
+import { SERVER_URL } from "../config";
 import useAuth from "./useAuth";
 
 export function useApi() {
@@ -9,8 +10,8 @@ export function useApi() {
 		accessTokenOverride?: string,
 	) {
 		const token = accessTokenOverride ?? accessToken;
-		const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-		return fetch(`${import.meta.env.VITE_SERVER_URL}/${cleanPath}`, {
+		const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+		return fetch(`${SERVER_URL}${normalizedPath}`, {
 			...options,
 			credentials: "include",
 			headers: {
@@ -25,22 +26,18 @@ export function useApi() {
 	async function fetchApi(path: string, options: RequestInit = {}) {
 		const response = await fetchWrapper(path, options);
 
-		if (response.status === 401) {
+		if (response.status === 401 && accessToken) {
 			const newAccessToken = await refresh();
 			if (!newAccessToken) {
 				logout();
 				return response;
 			}
 
-			const retryResponse = await fetchWrapper(
-				path,
-				options,
-				newAccessToken,
-			);
+			const retryResponse = await fetchWrapper(path, options, newAccessToken);
 
 			if (retryResponse.status === 401) {
 				logout();
-				await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, {
+				await fetch(`${SERVER_URL}/auth/logout`, {
 					method: "POST",
 					credentials: "include",
 				});

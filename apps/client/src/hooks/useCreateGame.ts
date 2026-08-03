@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { socket } from "../socket";
 import { useState } from "react";
-import type { CreateGameRes } from "@chesslab/shared/types";
+import type { CreateGameAck } from "@chesslab/shared/types";
 import { routes } from "../routes";
 
 export default function useCreateGame() {
@@ -21,15 +21,15 @@ export default function useCreateGame() {
 			};
 
 			socket.on("connect_error", onError);
-			socket.emit("createGame", ({ roomId }: CreateGameRes) => {
+			socket.emit("game:create", ({ gameId, color }: CreateGameAck) => {
 				clearTimeout(timeout);
 				socket.off("connect_error", onError);
 
-				if (!roomId) {
+				if (!gameId) {
 					setErrorMessage("Failed to create game");
 					return;
 				}
-				navigate(routes.game.path(roomId));
+				navigate(routes.game.path(gameId), { state: { color } });
 			});
 		} catch (err) {
 			setErrorMessage(err instanceof Error ? err.message : String(err));
