@@ -54,11 +54,16 @@ export type MoveMadeEvent = {
 	turn: PlayerColor;
 };
 
-export type GameMoveEvent = {
-	from: string;
-	to: string;
-	promotion: PromotionPiece;
-};
+export type GameMoveAck =
+	| {
+			ok: true;
+			fen: string;
+			turn: PlayerColor;
+	  }
+	| {
+			ok: false;
+			error: string;
+	  };
 
 export type GameSync = {
 	gameId: string;

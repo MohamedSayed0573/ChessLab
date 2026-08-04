@@ -5,7 +5,7 @@ import type { DefaultEventsMap, Socket, SocketData } from "socket.io";
 import type {
 	CreateGameAck,
 	JoinGameAck,
-	GameMoveEvent,
+	GameMoveAck,
 	MoveMadeEvent,
 	PlayerJoinedEvent,
 	GameSync,
@@ -58,6 +58,10 @@ io.on("connection", (socket) => {
 
 	handleOnConnection(userId, socket);
 
+	socket.onAny((event, ...args) => {
+		console.log(event, ...args);
+	});
+
 	socket.on("game:create", (cb: (reply: CreateGameAck) => void) => {
 		const { gameId, game } = gameManager.createGame(userId);
 		socket.join(gameId);
@@ -75,45 +79,60 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("game:join", (gameId: string, cb: (reply: JoinGameAck) => void) => {
-		const game = gameManager.joinGame(gameId, userId);
-		socket.join(gameId);
-		socket.data.gameInfo = { gameId, game };
+		try {
+			// Already in this game — reattach to the room without re-emitting start events.
+			const existingGameId = gameManager.findGameIdByUser(userId);
+			if (existingGameId === gameId) {
+				const game = gameManager.getGame(gameId);
+				socket.join(gameId);
+				socket.data.gameInfo = { gameId, game };
+				cb({ ok: true, gameId });
+				return;
+			}
 
-		game.on("game-over", () => {
-			io.to(gameId).emit("game:game-over", {
-				GameStateEvent: game.getGameStateEvent(),
+			const game = gameManager.joinGame(gameId, userId);
+			socket.join(gameId);
+			socket.data.gameInfo = { gameId, game };
+
+			game.on("game-over", () => {
+				io.to(gameId).emit("game:game-over", {
+					GameStateEvent: game.getGameStateEvent(),
+				});
 			});
-		});
 
-		// socket.emit("game:fen", { fen: game.getFEN(), turn: game.getTurn() });
+			socket.to(gameId).emit("game:player-joined", {
+				gameId,
+				opponentColor: game.getColor(userId),
+				opponentId: userId,
+			} as PlayerJoinedEvent);
 
-		socket.to(gameId).emit("game:player-joined", {
-			gameId,
-			opponentColor: game.getColor(userId),
-			opponentId: userId,
-		} as PlayerJoinedEvent);
+			game.start();
+			io.to(gameId).emit("game:game-started");
 
-		game.start();
-		io.to(gameId).emit("game:game-started");
-
-		cb({
-			ok: true,
-			gameId,
-		});
+			cb({
+				ok: true,
+				gameId,
+			});
+		} catch (err) {
+			cb({
+				ok: false,
+				error: err instanceof Error ? err.message : String(err),
+			});
+		}
 	});
 
-	socket.on("game:move", ({ from, to, promotion }: GameMoveEvent): void => {
-		if (!socket.data.gameInfo) {
-			throw new Error("You are not in a game");
-		}
-		const { game, gameId } = socket.data.gameInfo;
-		const userId = socket.data.userId;
-
-		if (game.getColor(userId) !== game.getChess().turn()) {
-			throw new Error("This isn't your turn");
-		}
-
+	socket.on("game:move", ({ from, to, promotion }, cb: (data: GameMoveAck) => void): void => {
 		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
+			const userId = socket.data.userId;
+
+			if (game.getColor(userId) !== game.getChess().turn()) {
+				throw new Error("This isn't your turn");
+			}
+
 			game.move(userId, from, to, promotion);
 			const fen = game.getFEN();
 			const turn = game.getTurn();
@@ -123,9 +142,16 @@ io.on("connection", (socket) => {
 			if (game.isGameOver()) {
 				io.to(gameId).emit("game:game-over", game.getGameStateEvent());
 			}
+
+			cb({
+				ok: true,
+				fen,
+				turn,
+			});
 		} catch (err) {
-			throw new Error(`Illegal Move ${err instanceof Error ? err.message : String(err)}`, {
-				cause: err,
+			cb({
+				ok: false,
+				error: err instanceof Error ? err.message : String(err),
 			});
 		}
 	});

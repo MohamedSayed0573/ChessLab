@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import type {
 	GameStateEvent,
-	GameMoveEvent,
+	GameMoveAck,
 	MoveMadeEvent,
 	PlayerJoinedEvent,
 	PlayerColor,
@@ -15,7 +15,7 @@ import SideBar from "../components/chessSidebar";
 import { useSocket } from "../hooks/useSocket";
 
 export default function PlayerGame() {
-	const { gameId } = useParams();
+	const { roomId: gameId } = useParams();
 	const { socket } = useSocket();
 
 	const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
@@ -41,13 +41,6 @@ export default function PlayerGame() {
 			setOpponentId(opponentId);
 		}
 
-		socket.emit("game:sync", ({ color, opponentId, fen, turn }: GameSync) => {
-			setColor(color);
-			setOpponentId(opponentId);
-			setChessPosition(fen);
-			setTurn(turn);
-		});
-
 		function handleGameStarted() {
 			setGameStarted(true);
 		}
@@ -57,6 +50,15 @@ export default function PlayerGame() {
 		socket.on("game:move-made", handleMove);
 		socket.on("game:game-started", handleGameStarted);
 		socket.on("game:player-joined", handleOpponentJoined);
+		socket.emit("game:sync", ({ color, opponentId, fen, turn }: GameSync) => {
+			setColor(color);
+			setOpponentId(opponentId);
+			setChessPosition(fen);
+			setTurn(turn);
+			if (opponentId) {
+				setGameStarted(true);
+			}
+		});
 
 		return () => {
 			socket.off("game:move-made", handleMove);
@@ -74,11 +76,22 @@ export default function PlayerGame() {
 			return false;
 		}
 
-		socket.emit("game:move", {
-			promotion: "q",
-			from: sourceSquare,
-			to: targetSquare,
-		} as GameMoveEvent);
+		socket.emit(
+			"game:move",
+			{
+				promotion: "q",
+				from: sourceSquare,
+				to: targetSquare,
+			},
+			(data: GameMoveAck) => {
+				if (data.ok) {
+					setChessPosition(data.fen);
+					setTurn(data.turn);
+				} else {
+					alert(data.error);
+				}
+			},
+		);
 
 		return true;
 	}

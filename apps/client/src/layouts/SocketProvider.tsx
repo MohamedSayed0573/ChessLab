@@ -39,6 +39,12 @@ export function SocketProvider({ children }: PropsWithChildren) {
 		};
 	}, [accessToken]);
 
+	useEffect(() => {
+		socket.onAny((event, ...args) => {
+			console.log(event, ...args);
+		});
+	}, []);
+
 	return (
 		<SocketContext.Provider value={{ socket, isConnected }}>{children}</SocketContext.Provider>
 	);
