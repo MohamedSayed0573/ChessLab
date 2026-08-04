@@ -2,21 +2,19 @@
 	"extends": ["../../tsconfig.json"],
 	"include": ["src"],
 	"compilerOptions": {
-		"ignoreDeprecations": "6.0",
 		"outDir": "./dist",
 		"rootDir": "src",
-		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"],
-			"@middleware/*": ["src/middleware/*"],
-			"@controllers/*": ["src/controllers/*"],
-			"@routes/*": ["src/routes/*"],
-			"@sockets/*": ["src/sockets/*"],
-			"@app-types/*": ["src/types/*"],
-			"@utils/*": ["src/utils/*"],
-			"@database/*": ["src/database/*"],
-			"@config/*": ["src/config/*"],
-			"@game/*": ["src/game/*"]
+			"@/*": ["./src/*"],
+			"@middleware/*": ["./src/middleware/*"],
+			"@controllers/*": ["./src/controllers/*"],
+			"@routes/*": ["./src/routes/*"],
+			"@sockets/*": ["./src/sockets/*"],
+			"@app-types/*": ["./src/types/*"],
+			"@utils/*": ["./src/utils/*"],
+			"@database/*": ["./src/database/*"],
+			"@config/*": ["./src/config/*"],
+			"@game/*": ["./src/game/*"]
 		}
 	}
 }

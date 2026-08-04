@@ -1,5 +1,4 @@
-import type { PromotionPiece } from "@/types/chess.types.js";
-import type { GameStateEvent } from "@chesslab/shared/types";
+import type { GameStateEvent, PromotionPiece } from "@chesslab/shared/types";
 import { Chess } from "chess.js";
 import EventEmitter from "node:events";
 

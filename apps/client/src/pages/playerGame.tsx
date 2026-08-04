@@ -1,60 +1,76 @@
 import { type ChessboardOptions, type PieceDropHandlerArgs } from "react-chessboard";
 import { Chess } from "chess.js";
 import { useEffect, useState } from "react";
-import { socket } from "../socket";
-import { useLocation, useParams } from "react-router";
+import { useParams } from "react-router";
 import type {
 	GameStateEvent,
 	GameMoveEvent,
 	MoveMadeEvent,
 	PlayerJoinedEvent,
+	PlayerColor,
+	GameSync,
 } from "@chesslab/shared/types";
 import ChessBoard from "../components/chessBoard";
-import type { LocationState } from "../types/types";
 import SideBar from "../components/chessSidebar";
+import { useSocket } from "../hooks/useSocket";
 
 export default function PlayerGame() {
 	const { gameId } = useParams();
-	const { state } = useLocation();
-	const { color, opponentId } = state as LocationState;
+	const { socket } = useSocket();
 
 	const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
 	const [gameOverInfo, setGameOverInfo] = useState<GameStateEvent | undefined>();
-	const [opponent, setOpponent] = useState<string | undefined>(opponentId);
+	const [opponentId, setOpponentId] = useState<string | undefined>();
+	const [color, setColor] = useState<PlayerColor | undefined>();
+	const [, setTurn] = useState<PlayerColor | undefined>();
+	const [isGameStarted, setGameStarted] = useState(false);
 
 	useEffect(() => {
 		if (!gameId) return;
 
 		function handleMove({ fen, turn }: MoveMadeEvent) {
 			setChessPosition(fen);
+			setTurn(turn);
 		}
 
 		function handleGameOver(gameOverInfo: GameStateEvent) {
 			setGameOverInfo(gameOverInfo);
 		}
 
-		// You are the one created the game.
-		function handleOpponentJoined({ opponentId, color, gameId }: PlayerJoinedEvent) {
-			setOpponent(opponentId);
+		function handleOpponentJoined({ opponentId }: PlayerJoinedEvent) {
+			setOpponentId(opponentId);
 		}
 
-		socket.on("game:game-move", handleMove);
+		socket.emit("game:sync", ({ color, opponentId, fen, turn }: GameSync) => {
+			setColor(color);
+			setOpponentId(opponentId);
+			setChessPosition(fen);
+			setTurn(turn);
+		});
+
+		function handleGameStarted() {
+			setGameStarted(true);
+		}
+
 		socket.on("game:game-over", handleGameOver);
+		socket.on("game:game-move", handleMove);
 		socket.on("game:move-made", handleMove);
-		socket.on("game:PlayerJoined", handleOpponentJoined);
+		socket.on("game:game-started", handleGameStarted);
+		socket.on("game:player-joined", handleOpponentJoined);
 
 		return () => {
 			socket.off("game:move-made", handleMove);
 			socket.off("game:game-move", handleMove);
 			socket.off("game:game-over", handleGameOver);
-			socket.off("game:PlayerJoined", handleOpponentJoined);
+			socket.off("game:game-started", handleGameStarted);
+			socket.off("game:player-joined", handleOpponentJoined);
 		};
-	}, [gameId]);
+	}, [gameId, socket]);
 
 	// handle piece drop
 	function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
 		// type narrow targetSquare potentially being null (e.g. if dropped off board)
-		if (!targetSquare || gameOverInfo?.gameOver) {
+		if (!targetSquare || gameOverInfo?.gameOver || !isGameStarted) {
 			return false;
 		}
 
@@ -95,7 +111,7 @@ export default function PlayerGame() {
 					playerName={user?.name || "You"}
 				/>*/}
 			</div>
-			<SideBar opponent={opponent} />
+			<SideBar opponent={opponentId} />
 		</>
 	);
 }

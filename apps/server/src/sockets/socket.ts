@@ -8,6 +8,7 @@ import type {
 	GameMoveEvent,
 	MoveMadeEvent,
 	PlayerJoinedEvent,
+	GameSync,
 } from "@chesslab/shared/types";
 import { io } from "@/io.js";
 const gameManager = new GameManager();
@@ -47,7 +48,7 @@ function handleOnConnection(
 		const { gameId, game } = socket.data.gameInfo;
 		socket.join(gameId);
 		game.reconnect(userId);
-		socket.emit("game:fen", { fen: game.getFEN(), turn: game.getTurn() });
+		// socket.emit("game:fen", { fen: game.getFEN(), turn: game.getTurn() });
 		socket.to(gameId).emit("game:player-reconnected");
 	}
 }
@@ -70,7 +71,6 @@ io.on("connection", (socket) => {
 
 		cb({
 			gameId,
-			color: game.getColor(userId),
 		});
 	});
 
@@ -85,26 +85,20 @@ io.on("connection", (socket) => {
 			});
 		});
 
-		socket.emit("game:fen", { fen: game.getFEN(), turn: game.getTurn() });
+		// socket.emit("game:fen", { fen: game.getFEN(), turn: game.getTurn() });
 
-		const opponentId = game.getMyOpponent(userId);
-
-		if (!opponentId) {
-			cb({ ok: false, error: "Could not find an opponent" });
-			return;
-		}
-
-		socket.to(gameId).emit("game:PlayerJoinedEvent", {
+		socket.to(gameId).emit("game:player-joined", {
 			gameId,
-			color: game.getColor(userId),
-			opponentId,
+			opponentColor: game.getColor(userId),
+			opponentId: userId,
 		} as PlayerJoinedEvent);
+
+		game.start();
+		io.to(gameId).emit("game:game-started");
 
 		cb({
 			ok: true,
 			gameId,
-			color: game.getColor(userId),
-			opponentId,
 		});
 	});
 
@@ -113,13 +107,14 @@ io.on("connection", (socket) => {
 			throw new Error("You are not in a game");
 		}
 		const { game, gameId } = socket.data.gameInfo;
+		const userId = socket.data.userId;
 
 		if (game.getColor(userId) !== game.getChess().turn()) {
 			throw new Error("This isn't your turn");
 		}
 
 		try {
-			game.move(from, to, promotion);
+			game.move(userId, from, to, promotion);
 			const fen = game.getFEN();
 			const turn = game.getTurn();
 
@@ -185,11 +180,19 @@ io.on("connection", (socket) => {
 		socket.to(gameId).emit("game:player-disconnected");
 	});
 
-	socket.emit("game:start", () => {
+	socket.on("game:sync", (cb: (sync: GameSync) => void) => {
 		if (!socket.data.gameInfo) {
 			throw new Error("You are not in a game");
 		}
-		const { game } = socket.data.gameInfo;
-		game.start();
+		const userId = socket.data.userId;
+		const { game, gameId } = socket.data.gameInfo;
+
+		cb({
+			gameId,
+			color: game.getColor(userId),
+			opponentId: game.getMyOpponent(userId),
+			fen: game.getFEN(),
+			turn: game.getTurn(),
+		});
 	});
 });

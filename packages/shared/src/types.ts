@@ -2,15 +2,12 @@ export type PlayerColor = "w" | "b";
 
 export type CreateGameAck = {
 	gameId: string;
-	color: "w" | "b";
 };
 
 export type JoinGameAck =
 	| {
 			ok: true;
 			gameId: string;
-			color: "w" | "b";
-			opponentId: string;
 	  }
 	| {
 			ok: false;
@@ -44,9 +41,11 @@ export interface GameStateEvent {
 	winnerColor: "w" | "b" | "d" | undefined;
 }
 
+export type PromotionPiece = "q" | "r" | "b" | "n";
+
 export type PlayerJoinedEvent = {
 	gameId: string;
-	color: PlayerColor;
+	opponentColor: PlayerColor;
 	opponentId: string;
 };
 
@@ -58,7 +57,15 @@ export type MoveMadeEvent = {
 export type GameMoveEvent = {
 	from: string;
 	to: string;
-	promotion: string;
+	promotion: PromotionPiece;
+};
+
+export type GameSync = {
+	gameId: string;
+	color: PlayerColor;
+	opponentId: string | undefined;
+	fen: string;
+	turn: PlayerColor;
 };
 
 export type User = {

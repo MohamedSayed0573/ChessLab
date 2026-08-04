@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { socket } from "../socket";
 import type { JoinGameAck } from "@chesslab/shared/types";
 import { routes } from "../routes";
+import { useSocket } from "./useSocket";
 
 export default function useJoinGame() {
 	const navigate = useNavigate();
+	const { socket } = useSocket();
 	const [errorMessage, setErrorMessage] = useState<string>();
 
 	const joinGame = (gameId: string) => {
@@ -15,7 +16,6 @@ export default function useJoinGame() {
 		}
 
 		const timeout = setTimeout(() => setErrorMessage("Server took too long to respond"), 5000);
-		socket.connect();
 
 		const onError = (err: Error) => {
 			clearTimeout(timeout);
@@ -31,9 +31,7 @@ export default function useJoinGame() {
 				setErrorMessage(res.error);
 				return;
 			}
-			navigate(routes.game.path(trimmedgameId), {
-				state: { color: res.color, opponentId: res.opponentId },
-			});
+			navigate(routes.game.path(trimmedgameId));
 		});
 	};
 

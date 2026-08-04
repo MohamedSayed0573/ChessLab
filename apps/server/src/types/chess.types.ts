@@ -6,5 +6,3 @@ export type GameInfo =
 			game: Game;
 	  }
 	| undefined;
-
-export type PromotionPiece = "q" | "r" | "b" | "n";
