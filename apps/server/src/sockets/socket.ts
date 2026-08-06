@@ -9,7 +9,9 @@ import type {
 	MoveMadeEvent,
 	PlayerJoinedEvent,
 	GameSync,
+	GameHistoryAck,
 } from "@chesslab/shared/types";
+import { toErrorMessage } from "@chesslab/shared/errors";
 import { io } from "@/io.js";
 const gameManager = new GameManager();
 
@@ -44,12 +46,15 @@ function handleOnConnection(
 	userId: string,
 	socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData>,
 ) {
-	if (socket.data.gameInfo) {
-		const { gameId, game } = socket.data.gameInfo;
-		socket.join(gameId);
-		game.reconnect(userId);
-		// socket.emit("game:fen", { fen: game.getFEN(), turn: game.getTurn() });
-		socket.to(gameId).emit("game:player-reconnected");
+	try {
+		if (socket.data.gameInfo) {
+			const { gameId, game } = socket.data.gameInfo;
+			socket.join(gameId);
+			game.reconnect(userId);
+			socket.to(gameId).emit("game:player-reconnected");
+		}
+	} catch (err) {
+		console.error("handleOnConnection error:", toErrorMessage(err));
 	}
 }
 
@@ -63,19 +68,27 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("game:create", (cb: (reply: CreateGameAck) => void) => {
-		const { gameId, game } = gameManager.createGame(userId);
-		socket.join(gameId);
-		socket.data.gameInfo = { gameId, game };
+		try {
+			const { gameId, game } = gameManager.createGame(userId);
+			socket.join(gameId);
+			socket.data.gameInfo = { gameId, game };
 
-		game.on("game-over", ({ GameStateEvent }) => {
-			io.to(gameId).emit("game:game-over", {
-				GameStateEvent,
+			game.on("game-over", ({ GameStateEvent }) => {
+				io.to(gameId).emit("game:game-over", {
+					GameStateEvent,
+				});
 			});
-		});
 
-		cb({
-			gameId,
-		});
+			cb({
+				ok: true,
+				gameId,
+			});
+		} catch (err) {
+			cb({
+				ok: false,
+				error: toErrorMessage(err),
+			});
+		}
 	});
 
 	socket.on("game:join", (gameId: string, cb: (reply: JoinGameAck) => void) => {
@@ -116,7 +129,7 @@ io.on("connection", (socket) => {
 		} catch (err) {
 			cb({
 				ok: false,
-				error: err instanceof Error ? err.message : String(err),
+				error: toErrorMessage(err),
 			});
 		}
 	});
@@ -151,74 +164,106 @@ io.on("connection", (socket) => {
 		} catch (err) {
 			cb({
 				ok: false,
-				error: err instanceof Error ? err.message : String(err),
+				error: toErrorMessage(err),
 			});
 		}
 	});
 
 	socket.on("game:offerDraw", () => {
-		if (!socket.data.gameInfo) {
-			throw new Error("You are not in a game");
-		}
-		const { game, gameId } = socket.data.gameInfo;
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
 
-		game.offerDraw(userId);
-		socket.to(gameId).emit("game:draw-offered");
+			game.offerDraw(userId);
+			socket.to(gameId).emit("game:draw-offered");
+		} catch (err) {
+			console.error("game:offerDraw error:", toErrorMessage(err));
+		}
 	});
 
 	socket.on("game:acceptDraw", () => {
-		if (!socket.data.gameInfo) {
-			throw new Error("You are not in a game");
-		}
-		const { game, gameId } = socket.data.gameInfo;
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
 
-		game.acceptDraw(userId);
-		socket.to(gameId).emit("game:draw-accepted");
+			game.acceptDraw(userId);
+			socket.to(gameId).emit("game:draw-accepted");
+		} catch (err) {
+			console.error("game:acceptDraw error:", toErrorMessage(err));
+		}
 	});
 
 	socket.on("game:declineDraw", () => {
-		if (!socket.data.gameInfo) {
-			throw new Error("You are not in a game");
-		}
-		const { game, gameId } = socket.data.gameInfo;
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
 
-		game.declineDraw(userId);
-		socket.to(gameId).emit("game:draw-declined");
+			game.declineDraw(userId);
+			socket.to(gameId).emit("game:draw-declined");
+		} catch (err) {
+			console.error("game:declineDraw error:", toErrorMessage(err));
+		}
 	});
 
-	socket.on("game:history", (cb) => {
-		if (!socket.data.gameInfo) {
-			throw new Error("You are not in a game");
-		}
-		const { game, gameId } = socket.data.gameInfo;
+	socket.on("game:history", (cb: (reply: GameHistoryAck) => void) => {
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
 
-		cb({
-			gameId: gameId,
-			history: game.getGameHistory(),
-		});
+			cb({
+				ok: true,
+				gameId,
+				history: game.getGameHistory(),
+			});
+		} catch (err) {
+			cb({
+				ok: false,
+				error: toErrorMessage(err),
+			});
+		}
 	});
 
 	socket.on("disconnect", () => {
-		if (!socket.data.gameInfo) return;
-		const { game, gameId } = socket.data.gameInfo;
-		game.disconnected(userId);
+		try {
+			if (!socket.data.gameInfo) return;
+			const { game, gameId } = socket.data.gameInfo;
+			game.disconnected(userId);
 
-		socket.to(gameId).emit("game:player-disconnected");
+			socket.to(gameId).emit("game:player-disconnected");
+		} catch (err) {
+			console.error("disconnect error:", toErrorMessage(err));
+		}
 	});
 
 	socket.on("game:sync", (cb: (sync: GameSync) => void) => {
-		if (!socket.data.gameInfo) {
-			throw new Error("You are not in a game");
-		}
-		const userId = socket.data.userId;
-		const { game, gameId } = socket.data.gameInfo;
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const userId = socket.data.userId;
+			const { game, gameId } = socket.data.gameInfo;
 
-		cb({
-			gameId,
-			color: game.getColor(userId),
-			opponentId: game.getMyOpponent(userId),
-			fen: game.getFEN(),
-			turn: game.getTurn(),
-		});
+			cb({
+				ok: true,
+				gameId,
+				color: game.getColor(userId),
+				opponentId: game.getMyOpponent(userId),
+				fen: game.getFEN(),
+				turn: game.getTurn(),
+			});
+		} catch (err) {
+			cb({
+				ok: false,
+				error: toErrorMessage(err),
+			});
+		}
 	});
 });

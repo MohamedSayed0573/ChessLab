@@ -1,8 +1,14 @@
 export type PlayerColor = "w" | "b";
 
-export type CreateGameAck = {
-	gameId: string;
-};
+export type CreateGameAck =
+	| {
+			ok: true;
+			gameId: string;
+	  }
+	| {
+			ok: false;
+			error: string;
+	  };
 
 export type JoinGameAck =
 	| {
@@ -65,13 +71,30 @@ export type GameMoveAck =
 			error: string;
 	  };
 
-export type GameSync = {
-	gameId: string;
-	color: PlayerColor;
-	opponentId: string | undefined;
-	fen: string;
-	turn: PlayerColor;
-};
+export type GameSync =
+	| {
+			ok: true;
+			gameId: string;
+			color: PlayerColor;
+			opponentId: string | undefined;
+			fen: string;
+			turn: PlayerColor;
+	  }
+	| {
+			ok: false;
+			error: string;
+	  };
+
+export type GameHistoryAck =
+	| {
+			ok: true;
+			gameId: string;
+			history: string[];
+	  }
+	| {
+			ok: false;
+			error: string;
+	  };
 
 export type User = {
 	id: number;

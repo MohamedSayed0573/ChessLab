@@ -21,15 +21,15 @@ export default function useCreateGame() {
 			};
 
 			socket.on("connect_error", onError);
-			socket.emit("game:create", ({ gameId }: CreateGameAck) => {
+			socket.emit("game:create", (res: CreateGameAck) => {
 				clearTimeout(timeout);
 				socket.off("connect_error", onError);
 
-				if (!gameId) {
-					setErrorMessage("Failed to create game");
+				if (!res.ok) {
+					setErrorMessage(res.error);
 					return;
 				}
-				navigate(routes.game.path(gameId));
+				navigate(routes.game.path(res.gameId));
 			});
 		} catch (err) {
 			setErrorMessage(err instanceof Error ? err.message : String(err));
