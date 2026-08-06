@@ -1,18 +1,18 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 
-import Layout from "./layouts/Layout";
-import { routes } from "./routes";
-import HomePage from "./pages/homePage";
-import PlayerGame from "./pages/playerGame";
-import ComputerGame from "./pages/computerGame";
-import NotFound from "./pages/notFound";
-import SignUpPage from "./pages/signupPage";
-import LoginPage from "./pages/loginPage";
-import ProfilePage from "./pages/profilePage";
-import RequireAuth from "./layouts/RequireAuth";
-import NotLoggedIn from "./layouts/NotLoggedIn";
-import AuthProvider from "./layouts/AuthProvider";
-import { SocketProvider } from "./layouts/SocketProvider";
+import Layout from "@layouts/Layout";
+import { routes } from "@/routes";
+import HomePage from "@pages/homePage";
+import PlayerGame from "@pages/playerGame";
+import ComputerGame from "@pages/computerGame";
+import NotFound from "@pages/notFound";
+import SignUpPage from "@pages/signupPage";
+import LoginPage from "@pages/loginPage";
+import ProfilePage from "@pages/profilePage";
+import RequireAuth from "@layouts/RequireAuth";
+import NotLoggedIn from "@layouts/NotLoggedIn";
+import AuthProvider from "@layouts/AuthProvider";
+import { SocketProvider } from "@layouts/SocketProvider";
 
 export default function App() {
 	return (

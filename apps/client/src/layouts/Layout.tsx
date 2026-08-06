@@ -1,10 +1,10 @@
-import { cn } from "../utils/cn";
-import { NavBarContext } from "../contexts/navBarContext";
-import { userContext } from "../contexts/userContext";
+import { cn } from "@utils/cn";
+import { NavBarContext } from "@contexts/navBarContext";
+import { userContext } from "@contexts/userContext";
 import { useState } from "react";
 import { Outlet } from "react-router";
-import Navigation from "../components/Navigation";
-import useFetchUser from "../hooks/useFetchUser";
+import Navigation from "@components/Navigation";
+import useFetchUser from "@hooks/useFetchUser";
 
 export default function Layout({ className }: { className?: string }) {
 	const [isCollapsed, setIsCollapsed] = useState<boolean>(true);

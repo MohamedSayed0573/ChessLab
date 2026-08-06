@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { JoinGameAck } from "@chesslab/shared/types";
-import { routes } from "../routes";
-import { useSocket } from "./useSocket";
+import { routes } from "@/routes";
+import { useSocket } from "@hooks/useSocket";
 
 export default function useJoinGame() {
 	const navigate = useNavigate();

@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { cn } from "../utils/cn";
+import { cn } from "@utils/cn";
 import { NavLink } from "react-router";
-import { NavBarContext } from "../contexts/navBarContext";
-import useUser from "../hooks/useUser";
+import { NavBarContext } from "@contexts/navBarContext";
+import useUser from "@hooks/useUser";
 
 export default function DesktopNav() {
 	const { collapsed: isCollapsed, toggle } = useContext(NavBarContext);
@@ -32,9 +32,7 @@ export default function DesktopNav() {
 						to="/"
 						className="flex items-center gap-2 text-2xl font-bold text-[#E8E1DC]"
 					>
-						<span className="material-symbols-outlined">
-							chess_queen
-						</span>
+						<span className="material-symbols-outlined">chess_queen</span>
 						ChessLab
 					</NavLink>
 					<p className="text-sm font-medium text-[#C2C9B6]">
@@ -56,25 +54,13 @@ export default function DesktopNav() {
 				{!user && (
 					<>
 						<SidebarItem to="/login" icon="login" label="Login" />
-						<SidebarItem
-							to="/signup"
-							icon="person_add"
-							label="Signup"
-						/>
+						<SidebarItem to="/signup" icon="person_add" label="Signup" />
 					</>
 				)}
 				{user && (
 					<>
-						<SidebarItem
-							to="/profile"
-							icon="account_circle"
-							label="Profile"
-						/>
-						<SidebarItem
-							to="/settings"
-							icon="settings"
-							label="Settings"
-						/>
+						<SidebarItem to="/profile" icon="account_circle" label="Profile" />
+						<SidebarItem to="/settings" icon="settings" label="Settings" />
 					</>
 				)}
 			</nav>
@@ -82,15 +68,7 @@ export default function DesktopNav() {
 	);
 }
 
-function SidebarItem({
-	to,
-	icon,
-	label,
-}: {
-	to: string;
-	icon: string;
-	label: string;
-}) {
+function SidebarItem({ to, icon, label }: { to: string; icon: string; label: string }) {
 	const { collapsed: iconOnly } = useContext(NavBarContext);
 
 	return (
@@ -99,9 +77,7 @@ function SidebarItem({
 			className={({ isActive, isPending }) =>
 				cn(
 					"flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
-					isActive
-						? "bg-lime-500 text-black"
-						: "text-zinc-300 hover:bg-zinc-800",
+					isActive ? "bg-lime-500 text-black" : "text-zinc-300 hover:bg-zinc-800",
 					isPending && "cursor-wait",
 					iconOnly && "group relative justify-center",
 				)

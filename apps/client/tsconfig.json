@@ -9,7 +9,20 @@
 		"module": "esnext",
 		"types": ["vite/client"],
 		"allowArbitraryExtensions": true,
-		"allowImportingTsExtensions": true
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"@/*": ["./src/*"],
+			"@assets/*": ["./src/assets/*"],
+			"@components/*": ["./src/components/*"],
+			"@contexts/*": ["./src/contexts/*"],
+			"@hooks/*": ["./src/hooks/*"],
+			"@icons/*": ["./src/icons/*"],
+			"@layouts/*": ["./src/layouts/*"],
+			"@pages/*": ["./src/pages/*"],
+			"@stockfish/*": ["./src/stockfish/*"],
+			"@app-types/*": ["./src/types/*"],
+			"@utils/*": ["./src/utils/*"]
+		}
 	},
 	"include": ["vite.config.ts", "src"]
 }

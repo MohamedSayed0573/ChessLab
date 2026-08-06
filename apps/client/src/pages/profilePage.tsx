@@ -1,8 +1,8 @@
-import { AvatarSection } from "../components/profile/avatarSection";
-import { DeleteAccountBtn } from "../components/profile/deleteAccountBtn";
-import { LogoutBtn } from "../components/profile/logoutBtn";
-import { UsernameSection } from "../components/profile/usernameSection";
-import useUser from "../hooks/useUser";
+import { AvatarSection } from "@components/profile/avatarSection";
+import { DeleteAccountBtn } from "@components/profile/deleteAccountBtn";
+import { LogoutBtn } from "@components/profile/logoutBtn";
+import { UsernameSection } from "@components/profile/usernameSection";
+import useUser from "@hooks/useUser";
 
 export default function ProfilePage() {
 	const { user } = useUser();
@@ -20,28 +20,18 @@ export default function ProfilePage() {
 					{/* Profile Header */}
 					<header>
 						<UsernameSection />
-						<p className="pb-4 text-base text-[#9FD668]">
-							@{user.username}
-						</p>
+						<p className="pb-4 text-base text-[#9FD668]">@{user.username}</p>
 					</header>
 
 					{/* Profile Details */}
 					<div className="flex gap-5">
 						<div className="flex gap-2">
-							<span className="material-symbols-outlined">
-								mail
-							</span>
-							<p className="text-base text-[#BAB9B8]">
-								{user.email}
-							</p>
+							<span className="material-symbols-outlined">mail</span>
+							<p className="text-base text-[#BAB9B8]">{user.email}</p>
 						</div>
 						<div className="flex gap-2">
-							<span className="material-symbols-outlined">
-								date_range
-							</span>
-							<p className="text-base text-[#BAB9B8]">
-								JOINED {user.createdAt}
-							</p>
+							<span className="material-symbols-outlined">date_range</span>
+							<p className="text-base text-[#BAB9B8]">JOINED {user.createdAt}</p>
 						</div>
 					</div>
 
@@ -59,39 +49,29 @@ export default function ProfilePage() {
 					<span className="flex w-full justify-center border-b border-[#373431] pb-2 text-center text-base font-medium text-[#BAB9B8]">
 						CURRENT ELO
 					</span>
-					<span className="text-5xl font-bold text-[#9FD668]">
-						{user.elo}
-					</span>
+					<span className="text-5xl font-bold text-[#9FD668]">{user.elo}</span>
 				</div>
 
 				<div className="flex flex-col items-center justify-center gap-6 p-6">
 					<span className="flex w-full justify-center border-b border-[#373431] pb-2 text-center text-base font-medium text-[#BAB9B8]">
 						PEAK RATING
 					</span>
-					<span className="text-5xl font-bold text-[#9FD668]">
-						{user.elo}
-					</span>
+					<span className="text-5xl font-bold text-[#9FD668]">{user.elo}</span>
 				</div>
 
 				<div className="flex flex-col items-center justify-center gap-6 p-6">
 					<span className="flex w-full justify-center border-b border-[#373431] pb-2 text-center text-base font-medium text-[#BAB9B8]">
 						WIN PERCENTAGE
 					</span>
-					<span className="text-5xl font-bold text-[#9FD668]">
-						{user.elo}
-					</span>
+					<span className="text-5xl font-bold text-[#9FD668]">{user.elo}</span>
 				</div>
 			</section>
 
 			{/* Match History */}
 			<section className="flex flex-col">
 				<div className="flex justify-between border-b border-[#373431] p-6">
-					<span className="text-[20px] font-bold text-[#E8E1DC]">
-						MATCH HISTORY
-					</span>
-					<span className="text-base font-medium text-[#9FD668]">
-						View All
-					</span>
+					<span className="text-[20px] font-bold text-[#E8E1DC]">MATCH HISTORY</span>
+					<span className="text-base font-medium text-[#9FD668]">View All</span>
 				</div>
 
 				<table>

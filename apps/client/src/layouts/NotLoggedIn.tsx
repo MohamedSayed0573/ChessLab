@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation, type Location } from "react-router";
-import useAuth from "../hooks/useAuth";
+import useAuth from "@hooks/useAuth";
 
 export default function NotLoggedIn() {
 	const { accessToken, isInitializing } = useAuth();

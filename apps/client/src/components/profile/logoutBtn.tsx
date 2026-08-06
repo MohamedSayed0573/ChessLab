@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
-import { useApi } from "../../hooks/useApi";
-import useAuth from "../../hooks/useAuth";
+import { useApi } from "@hooks/useApi";
+import useAuth from "@hooks/useAuth";
 
 export function LogoutBtn() {
 	const { logout } = useAuth();

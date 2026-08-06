@@ -1,9 +1,9 @@
 import { useEffect, useState, type PropsWithChildren } from "react";
-import useAuth from "../hooks/useAuth";
+import useAuth from "@hooks/useAuth";
 
 import { io, type Socket } from "socket.io-client";
-import { SERVER_URL } from "../config";
-import { SocketContext } from "../contexts/socketContext";
+import { SERVER_URL } from "@/config";
+import { SocketContext } from "@contexts/socketContext";
 
 const socket: Socket = io(SERVER_URL, {
 	autoConnect: false,

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import useAuth from "../../hooks/useAuth";
-import { useApi } from "../../hooks/useApi";
+import useAuth from "@hooks/useAuth";
+import { useApi } from "@hooks/useApi";
 import { useNavigate } from "react-router";
 
 export function DeleteAccountBtn() {
@@ -48,9 +48,7 @@ export function DeleteAccountBtn() {
 								className="flex cursor-pointer items-center justify-center bg-[#9FD668] px-6 py-2 text-base font-medium text-[#1C3700]"
 								onClick={handleDeleteAccount}
 							>
-								<span className="material-symbols-outlined">
-									check
-								</span>
+								<span className="material-symbols-outlined">check</span>
 							</button>
 
 							<button

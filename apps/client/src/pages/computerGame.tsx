@@ -1,11 +1,11 @@
 import { type ChessboardOptions, type PieceDropHandlerArgs } from "react-chessboard";
 import { useState } from "react";
 import { Chess } from "chess.js";
-import ChessBoard from "../components/chessBoard";
-import useStockfish from "../hooks/useStockfish";
-import useTimer from "../hooks/useTimer";
-import { Timer } from "../components/Timer";
-//import SideBar from "../components/chessSidebar";
+import ChessBoard from "@components/chessBoard";
+import useStockfish from "@hooks/useStockfish";
+import useTimer from "@hooks/useTimer";
+import { Timer } from "@components/Timer";
+//import SideBar from "@components/chessSidebar";
 import type { GameOverInfo } from "@chesslab/shared/types";
 
 export default function ComputerChessBoard() {

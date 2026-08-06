@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { authContext } from "../contexts/authContext";
-import { SERVER_URL } from "../config";
+import { authContext } from "@contexts/authContext";
+import { SERVER_URL } from "@/config";
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
 	const [accessToken, setAccessToken] = useState<string | undefined>(undefined);

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import useUser from "../../hooks/useUser";
-import { useApi } from "../../hooks/useApi";
+import useUser from "@hooks/useUser";
+import { useApi } from "@hooks/useApi";
 
 export function UsernameSection() {
 	const { user, setUser } = useUser();
@@ -38,10 +38,7 @@ export function UsernameSection() {
 						value={name}
 						onChange={(e) => setName(e.currentTarget.value)}
 					/>
-					<button
-						className="ml-2 cursor-pointer"
-						onClick={handleEditBtn}
-					>
+					<button className="ml-2 cursor-pointer" onClick={handleEditBtn}>
 						<span className="material-symbols-outlined">check</span>
 					</button>
 				</>

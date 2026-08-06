@@ -1,6 +1,6 @@
-import { useApi } from "../../hooks/useApi";
-import useUser from "../../hooks/useUser";
-import defaultAvatar from "../../assets/default-avatar.svg";
+import { useApi } from "@hooks/useApi";
+import useUser from "@hooks/useUser";
+import defaultAvatar from "@assets/default-avatar.svg";
 
 export function AvatarSection() {
 	const { user, setUser } = useUser();
@@ -23,18 +23,14 @@ export function AvatarSection() {
 
 		if (res.ok) {
 			const data = await res.json();
-			setUser((prev) =>
-				prev ? { ...prev, avatarUrl: data.avatarUrl } : prev,
-			);
+			setUser((prev) => (prev ? { ...prev, avatarUrl: data.avatarUrl } : prev));
 		}
 	}
 
 	return (
 		<div className="relative h-37.5 w-37.5 bg-white">
 			<label htmlFor="profile-image" className="cursor-pointer">
-				<span className="material-symbols-outlined absolute right-2 bottom-2">
-					edit
-				</span>
+				<span className="material-symbols-outlined absolute right-2 bottom-2">edit</span>
 				<input
 					id="profile-image"
 					type="file"

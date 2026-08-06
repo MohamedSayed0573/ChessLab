@@ -1,8 +1,8 @@
 import { NavLink, useLocation, useNavigate, type Location } from "react-router";
-import RookIcon from "../icons/RookIcon";
+import RookIcon from "@icons/RookIcon";
 import { useState } from "react";
-import useAuth from "../hooks/useAuth";
-import { useApi } from "../hooks/useApi";
+import useAuth from "@hooks/useAuth";
+import { useApi } from "@hooks/useApi";
 
 export default function LoginPage() {
 	return (

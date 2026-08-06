@@ -10,9 +10,9 @@ import type {
 	PlayerColor,
 	GameSync,
 } from "@chesslab/shared/types";
-import ChessBoard from "../components/chessBoard";
-import SideBar from "../components/chessSidebar";
-import { useSocket } from "../hooks/useSocket";
+import ChessBoard from "@components/chessBoard";
+import SideBar from "@components/chessSidebar";
+import { useSocket } from "@hooks/useSocket";
 
 export default function PlayerGame() {
 	const { roomId: gameId } = useParams();

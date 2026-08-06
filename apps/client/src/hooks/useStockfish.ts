@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import stockfish from "../stockfish/stockfish";
+import stockfish from "@stockfish/stockfish";
 import type { Chess } from "chess.js";
 
 export default function useStockfish({

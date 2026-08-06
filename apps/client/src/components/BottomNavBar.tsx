@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import { cn } from "../utils/cn";
+import { cn } from "@utils/cn";
 
 export default function MobileBottomNav() {
 	return (
@@ -15,24 +15,14 @@ export default function MobileBottomNav() {
 	);
 }
 
-function SidebarItem({
-	to,
-	icon,
-	label,
-}: {
-	to: string;
-	icon: string;
-	label: string;
-}) {
+function SidebarItem({ to, icon, label }: { to: string; icon: string; label: string }) {
 	return (
 		<NavLink
 			to={to}
 			className={({ isActive, isPending }) =>
 				cn(
 					"flex cursor-pointer items-center justify-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors",
-					isActive
-						? "bg-lime-500 text-black"
-						: "text-zinc-300 hover:bg-zinc-800",
+					isActive ? "bg-lime-500 text-black" : "text-zinc-300 hover:bg-zinc-800",
 					isPending && "cursor-wait",
 				)
 			}
