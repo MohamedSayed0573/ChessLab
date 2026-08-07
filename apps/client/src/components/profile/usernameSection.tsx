@@ -17,7 +17,7 @@ export function UsernameSection() {
 		fetchApi("/users/me/username", {
 			method: "PATCH",
 			body: JSON.stringify({
-				newUsername: name,
+				username: name,
 			}),
 			headers: {
 				"Content-Type": "application/json",

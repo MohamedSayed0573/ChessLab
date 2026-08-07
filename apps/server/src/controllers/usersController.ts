@@ -64,18 +64,18 @@ export async function updateAvatarController(req: Request, res: Response) {
 
 export async function updateUsernameController(req: Request, res: Response) {
 	const userId = req.userId;
-	const { newUsername } = req.body;
+	const { username } = req.body;
 
 	await db
 		.update(usersTable)
 		.set({
-			name: newUsername,
+			name: username,
 		})
 		.where(eq(usersTable.id, userId));
 
 	res.status(200).json({
 		success: true,
-		newUsername: newUsername,
+		username,
 	});
 }
 
