@@ -1,142 +1,40 @@
-import { NavLink, useLocation, useNavigate, type Location } from "react-router";
-import RookIcon from "@icons/RookIcon";
-import { useState } from "react";
-import useAuth from "@hooks/useAuth";
-import { useApi } from "@hooks/useApi";
-import { toErrorMessage } from "@chesslab/shared/errors";
-import type { LoginResponse } from "@chesslab/shared/types";
+import AuthLayout from "@layouts/AuthLayout";
+import useAuthForm from "@hooks/useAuthForm";
+import { AuthFormContainer } from "@components/AuthFormContainer";
+import { AuthFormItem } from "@components/AuthFormItem";
 
 export default function LoginPage() {
 	return (
-		<main className="font-hanken grid h-full md:grid-cols-2">
-			<section className="hidden place-items-center border-r border-[#42493A] bg-[#221F1C] md:grid">
-				<div className="flex flex-col items-center justify-center gap-4 px-12 text-center">
-					<RookIcon width="45" height="50" />
-					<h1 className="text-5xl font-extrabold text-[#E8E1DC]">Master Your Game</h1>
-					<p className="text-lg text-[#C2C9B6]">
-						Join the most advanced chess platform. Analyze games, learn from
-						grandmasters, and elevate your rating.
-					</p>
-				</div>
-			</section>
-
-			<section className="grid place-items-center bg-[#151310] p-20">
-				<div className="flex flex-1 flex-col">
-					<div className="mb-10 flex flex-col gap-2">
-						<span className="text-3xl font-bold text-[#E8E1DC]">Log In</span>
-						<span className="text-lg text-[#C2C9B6]">Sign in to your account.</span>
-					</div>
-
-					<Form />
-
-					<div className="mt-8 flex gap-1">
-						<p>Don't have an account?</p>
-						<NavLink to="/signup" className="text-[#9FD668]">
-							Sign Up
-						</NavLink>
-					</div>
-				</div>
-			</section>
-		</main>
+		<AuthLayout
+			title="Log In"
+			subtitle="Sign in to your account."
+			footerText="Don't have an account?"
+			footerActionText="Sign Up"
+			footerActionTo="/signup"
+		>
+			<LoginForm />
+		</AuthLayout>
 	);
 }
 
-function Form() {
-	const [error, setError] = useState<string | undefined>(undefined);
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const { setAccessToken } = useAuth();
-	const fetchApi = useApi();
-	const navigate = useNavigate();
-	const location = useLocation();
-
-	async function submitForm(e: React.SubmitEvent<HTMLFormElement>) {
-		e.preventDefault();
-		setIsSubmitting(true);
-
-		try {
-			const formData = new FormData(e.currentTarget);
-
-			const email = formData.get("email");
-			const password = formData.get("password");
-
-			const res = await fetchApi("/auth/login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					email,
-					password,
-				}),
-			});
-
-			if (!res.ok) {
-				setError(`Login failed (${res.statusText})`);
-				return;
-			}
-
-			const data: LoginResponse = await res.json();
-			if (!data.success) {
-				setError(data.message);
-				return;
-			}
-
-			setAccessToken(data.accessToken);
-
-			const state = location.state as { from?: Location };
-			const from = state.from;
-			navigate(from ?? "/", { replace: true });
-		} catch (err) {
-			setError(`Unable to reach the server. ${toErrorMessage(err)}`);
-		} finally {
-			setIsSubmitting(false);
-		}
-	}
+function LoginForm() {
+	const { submitForm, error, isSubmitting } = useAuthForm("/auth/login");
 
 	return (
-		<>
-			<form
-				className="flex flex-col gap-5 font-mono text-sm font-medium"
-				onSubmit={submitForm}
-			>
-				<div className="flex flex-col gap-2">
-					<label className="text-[#C2C9B6]" htmlFor="email">
-						Email
-					</label>
-					<input
-						id="email"
-						type="email"
-						name="email"
-						placeholder="Enter your email"
-						className="rounded-md border border-[#42493A] bg-[#221F1C] px-4 py-3 text-[#6B7280]"
-						required
-					/>
-				</div>
-				<div className="flex flex-col gap-2">
-					<label className="text-[#C2C9B6]" htmlFor="password">
-						Password
-					</label>
-					<input
-						id="password"
-						type="password"
-						name="password"
-						className="rounded-md border border-[#42493A] bg-[#221F1C] px-4 py-3 text-[#6B7280]"
-						placeholder="Enter your password"
-						required
-					/>
-				</div>
-
-				<button
-					type="submit"
-					disabled={isSubmitting}
-					className="rounded-md bg-[#81B64C] py-3 text-sm font-medium text-white hover:cursor-pointer hover:bg-[#5A6150] disabled:cursor-wait disabled:opacity-60"
-				>
-					{isSubmitting ? "Logging in…" : "Log In"}
-				</button>
-			</form>
-			{error && (
-				<div className="mt-4 rounded-md bg-[#221F1C] px-4 py-3 text-sm text-red-500">
-					{error}
-				</div>
-			)}
-		</>
+		<AuthFormContainer
+			onSubmit={submitForm}
+			isSubmitting={isSubmitting}
+			submitLabel="Log In"
+			submittingLabel="Logging in…"
+			error={error}
+		>
+			<AuthFormItem label="Email" type="email" name="email" placeholder="Enter your email" />
+			<AuthFormItem
+				label="Password"
+				type="password"
+				name="password"
+				placeholder="Enter your password"
+			/>
+		</AuthFormContainer>
 	);
 }

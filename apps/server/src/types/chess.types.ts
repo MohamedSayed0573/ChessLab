@@ -1,4 +1,4 @@
-import type { Game } from "@/game/game.js";
+import type { Game } from "@game/game.js";
 
 export type GameInfo =
 	| {

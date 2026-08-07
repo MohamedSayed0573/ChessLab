@@ -3,10 +3,10 @@ import { refreshTokensTable, usersTable } from "@database/schema.js";
 import { and, eq, gt, or } from "drizzle-orm";
 import { clearCookie, generateJWT, saveCookie, verifyPassword } from "@utils/authUtils.js";
 import { COOKIE_NAMES } from "@/constants.js";
-import { db } from "@/config/db.js";
+import { db } from "@config/db.js";
 import * as argon2 from "argon2";
 import { BadRequestError, UnauthorizedError } from "@/errors.js";
-import { env } from "@/config/env.js";
+import { env } from "@config/env.js";
 import type { LoginResponse, RegisterResponse } from "@chesslab/shared/types";
 
 export async function loginController(req: Request, res: Response) {

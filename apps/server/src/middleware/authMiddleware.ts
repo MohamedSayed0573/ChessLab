@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { ConflictError, UnauthorizedError } from "@/errors.js";
 import type { JwtPayload } from "@app-types/types.js";
-import { env } from "@/config/env.js";
+import { env } from "@config/env.js";
 import { toErrorMessage } from "@chesslab/shared/errors";
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {

@@ -28,7 +28,11 @@ export default function useJoinGame() {
 			socket.off("connect_error", onError);
 			clearTimeout(timeout);
 			if (!res.ok) {
-				setErrorMessage(res.error);
+				setErrorMessage(
+					res.gameId
+						? `You are already in an active game ${res.gameId}. Join it to continue`
+						: res.error,
+				);
 				return;
 			}
 			navigate(routes.game.path(trimmedgameId));

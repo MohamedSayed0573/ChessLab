@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import app from "@/app.js";
 import { Server, type DefaultEventsMap, type SocketData } from "socket.io";
-import { env } from "@/config/env.js";
+import { env } from "@config/env.js";
 
 const server = createServer(app);
 

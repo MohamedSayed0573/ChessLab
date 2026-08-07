@@ -2,7 +2,7 @@ import type { CookieOptions, Response } from "express";
 import type { CookieName, JwtPayload } from "@app-types/types.ts";
 import jwt from "jsonwebtoken";
 import * as argon2 from "argon2";
-import { env } from "@/config/env.js";
+import { env } from "@config/env.js";
 
 export function generateJWT(payload: JwtPayload) {
 	return jwt.sign(payload, env.JWT_SECRET, {

@@ -1,6 +1,6 @@
-import { GameManager } from "@/game/gameManager.js";
+import { GameManager } from "@game/gameManager.js";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import { env } from "@/config/env.js";
+import { env } from "@config/env.js";
 import type { DefaultEventsMap, Socket, SocketData } from "socket.io";
 import type {
 	CreateGameAck,
@@ -102,8 +102,9 @@ io.on("connection", (socket) => {
 
 	socket.on("game:join", (gameId: string, cb: (reply: JoinGameAck) => void) => {
 		try {
+			// The user is already in an active game, reject the join request.
 			const activeGameId = gameManager.isPlayerInActiveGame(userId);
-			if (activeGameId) {
+			if (activeGameId && activeGameId !== gameId) {
 				return cb({
 					ok: false,
 					error: "Already in a game",
@@ -112,7 +113,7 @@ io.on("connection", (socket) => {
 			}
 
 			// Already in this game — reattach to the room without re-emitting start events.
-			if (socket.data.gameInfo) {
+			if (socket.data.gameInfo?.gameId === gameId) {
 				const game = gameManager.getGame(gameId);
 				socket.join(gameId);
 				socket.data.gameInfo = { gameId, game };

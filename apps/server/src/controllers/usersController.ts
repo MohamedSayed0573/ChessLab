@@ -1,13 +1,13 @@
 import { type Request, type Response } from "express";
-import { s3 } from "@/config/s3.js";
+import { s3 } from "@config/s3.js";
 import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { usersTable } from "@/database/schema.js";
+import { usersTable } from "@database/schema.js";
 import { db } from "@/config/db.js";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { env } from "@/config/env.js";
+import { env } from "@config/env.js";
 import { BadRequestError } from "@/errors.js";
-import { clearCookie } from "@/utils/authUtils.js";
+import { clearCookie } from "@utils/authUtils.js";
 
 export async function updateAvatarController(req: Request, res: Response) {
 	const userId = req.userId;
@@ -33,10 +33,7 @@ export async function updateAvatarController(req: Request, res: Response) {
 
 	// Check if the user already has an avatar and store the old avatar key for deletion
 	let oldAvatarUrl: string | undefined = undefined;
-	const [user] = await db
-		.select()
-		.from(usersTable)
-		.where(eq(usersTable.id, userId));
+	const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
 
 	if (user?.avatarUrl) {
 		oldAvatarUrl = user.avatarUrl;
