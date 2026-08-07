@@ -1,4 +1,4 @@
-import useUser from "../hooks/useUser";
+import useUser from "@hooks/useUser";
 
 export default function HomePage() {
 	const { user } = useUser();

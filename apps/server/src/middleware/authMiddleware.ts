@@ -2,7 +2,8 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { ConflictError, UnauthorizedError } from "@/errors.js";
 import type { JwtPayload } from "@app-types/types.js";
-import { env } from "@/config/env.js";
+import { env } from "@config/env.js";
+import { toErrorMessage } from "@chesslab/shared/errors";
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
 	const accessToken = req.headers.authorization?.split(" ")[1];
@@ -14,9 +15,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 		req.userId = payload.userId;
 		return next();
 	} catch (err) {
-		console.log(
-			err instanceof Error ? err.message : "Error: Invalid Token",
-		);
+		console.log(toErrorMessage(err));
 		return next();
 	}
 }

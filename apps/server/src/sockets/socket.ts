@@ -1,207 +1,287 @@
-import type { GameOverInfo } from "@chesslab/shared/types";
-import { Chess } from "chess.js";
-import { io } from "@/index.js";
+import { GameManager } from "@game/gameManager.js";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+import { env } from "@config/env.js";
+import type { DefaultEventsMap, Socket, SocketData } from "socket.io";
+import type {
+	CreateGameAck,
+	JoinGameAck,
+	GameMoveAck,
+	MoveMadeEvent,
+	PlayerJoinedEvent,
+	GameSync,
+	GameHistoryAck,
+} from "@chesslab/shared/types";
+import { toErrorMessage } from "@chesslab/shared/errors";
+import { io } from "@/io.js";
+const gameManager = new GameManager();
 
-type Game = {
-	id: string;
-	chess: Chess;
-	white: string | undefined; // socket.id
-	black: string | undefined; // socket.id
-	whiteTimeMs: number;
-	blackTimeMs: number;
-	lastMoveTime: number;
-};
+// Authentication Middleware
+io.use((socket, next) => {
+	const token = socket.handshake.auth.token;
+	if (!token) return next(new Error("Unauthorized"));
 
-const games = new Map<string, Game>();
+	try {
+		const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+		socket.data.userId = payload.userId;
+	} catch {
+		return next(new Error("Unauthorized"));
+	}
 
-function sendGameState(roomId: string, game: Game) {
-	io.to(roomId).emit("gameState", {
-		whiteTimeMs: game.whiteTimeMs,
-		blackTimeMs: game.blackTimeMs,
-		currentTurn: game.chess.turn(),
-		lastMoveTime: game.lastMoveTime,
-	});
+	return next();
+});
+
+// Attach GameInfo if the player is already in a game
+io.use((socket, next) => {
+	const userId = socket.data.userId;
+	const gameId = gameManager.findGameIdByUser(userId);
+	if (gameId) {
+		const game = gameManager.getGame(gameId);
+		socket.data.gameInfo = { gameId, game };
+	}
+
+	return next();
+});
+
+function handleOnConnection(
+	userId: string,
+	socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, SocketData>,
+) {
+	try {
+		if (socket.data.gameInfo) {
+			const { gameId, game } = socket.data.gameInfo;
+			socket.join(gameId);
+			game.reconnect(userId);
+			socket.to(gameId).emit("game:player-reconnected");
+		}
+	} catch (err) {
+		console.error("handleOnConnection error:", toErrorMessage(err));
+	}
 }
 
 io.on("connection", (socket) => {
-	function leaveCurrentGame() {
-		const roomId = socket.data.roomId;
+	const userId = socket.data.userId;
 
-		if (!roomId) return;
+	handleOnConnection(userId, socket);
 
-		socket.leave(roomId);
+	socket.onAny((event, ...args) => {
+		console.log(event, ...args);
+	});
 
-		const game = games.get(roomId);
-
-		if (game) {
-			if (game.white === socket.id) game.white = undefined;
-
-			if (game.black === socket.id) game.black = undefined;
-
-			if (!game.white && !game.black) {
-				games.delete(roomId);
+	socket.on("game:create", (cb: (reply: CreateGameAck) => void) => {
+		try {
+			const activeGameId = gameManager.isPlayerInActiveGame(userId);
+			if (activeGameId) {
+				return cb({
+					ok: false,
+					error: "Already in a game",
+					gameId: activeGameId,
+				});
 			}
-		}
 
-		delete socket.data.roomId;
-	}
+			const { gameId, game } = gameManager.createGame(userId);
+			socket.join(gameId);
+			socket.data.gameInfo = { gameId, game };
+
+			game.on("game-over", ({ GameStateEvent }) => {
+				io.to(gameId).emit("game:game-over", {
+					GameStateEvent,
+				});
+			});
+
+			cb({
+				ok: true,
+				gameId,
+			});
+		} catch (err) {
+			cb({
+				ok: false,
+				error: toErrorMessage(err),
+			});
+		}
+	});
+
+	socket.on("game:join", (gameId: string, cb: (reply: JoinGameAck) => void) => {
+		try {
+			// The user is already in an active game, reject the join request.
+			const activeGameId = gameManager.isPlayerInActiveGame(userId);
+			if (activeGameId && activeGameId !== gameId) {
+				return cb({
+					ok: false,
+					error: "Already in a game",
+					gameId: activeGameId,
+				});
+			}
+
+			// Already in this game — reattach to the room without re-emitting start events.
+			if (socket.data.gameInfo?.gameId === gameId) {
+				const game = gameManager.getGame(gameId);
+				socket.join(gameId);
+				socket.data.gameInfo = { gameId, game };
+				cb({ ok: true, gameId });
+				return;
+			}
+
+			const game = gameManager.joinGame(gameId, userId);
+			socket.join(gameId);
+			socket.data.gameInfo = { gameId, game };
+
+			game.on("game-over", () => {
+				io.to(gameId).emit("game:game-over", {
+					GameStateEvent: game.getGameStateEvent(),
+				});
+			});
+
+			socket.to(gameId).emit("game:player-joined", {
+				gameId,
+				opponentColor: game.getColor(userId),
+				opponentId: userId,
+			} as PlayerJoinedEvent);
+
+			game.start();
+			io.to(gameId).emit("game:game-started");
+
+			cb({
+				ok: true,
+				gameId,
+			});
+		} catch (err) {
+			cb({
+				ok: false,
+				error: toErrorMessage(err),
+			});
+		}
+	});
+
+	socket.on("game:move", ({ from, to, promotion }, cb: (data: GameMoveAck) => void): void => {
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
+			const userId = socket.data.userId;
+
+			if (game.getColor(userId) !== game.getChess().turn()) {
+				throw new Error("This isn't your turn");
+			}
+
+			game.move(userId, from, to, promotion);
+			const fen = game.getFEN();
+			const turn = game.getTurn();
+
+			socket.to(gameId).emit("game:move-made", { fen, turn } as MoveMadeEvent);
+
+			if (game.isGameOver()) {
+				io.to(gameId).emit("game:game-over", game.getGameStateEvent());
+			}
+
+			cb({
+				ok: true,
+				fen,
+				turn,
+			});
+		} catch (err) {
+			cb({
+				ok: false,
+				error: toErrorMessage(err),
+			});
+		}
+	});
+
+	socket.on("game:offerDraw", () => {
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
+
+			game.offerDraw(userId);
+			socket.to(gameId).emit("game:draw-offered");
+		} catch (err) {
+			console.error("game:offerDraw error:", toErrorMessage(err));
+		}
+	});
+
+	socket.on("game:acceptDraw", () => {
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
+
+			game.acceptDraw(userId);
+			socket.to(gameId).emit("game:draw-accepted");
+		} catch (err) {
+			console.error("game:acceptDraw error:", toErrorMessage(err));
+		}
+	});
+
+	socket.on("game:declineDraw", () => {
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
+
+			game.declineDraw(userId);
+			socket.to(gameId).emit("game:draw-declined");
+		} catch (err) {
+			console.error("game:declineDraw error:", toErrorMessage(err));
+		}
+	});
+
+	socket.on("game:history", (cb: (reply: GameHistoryAck) => void) => {
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const { game, gameId } = socket.data.gameInfo;
+
+			cb({
+				ok: true,
+				gameId,
+				history: game.getGameHistory(),
+			});
+		} catch (err) {
+			cb({
+				ok: false,
+				error: toErrorMessage(err),
+			});
+		}
+	});
 
 	socket.on("disconnect", () => {
-		leaveCurrentGame();
-	});
-
-	socket.on("move", ({ promotion, from, to }) => {
-		const roomId = socket.data.roomId;
-		if (!roomId) return;
-
-		const game = games.get(roomId);
-		if (!game) return;
-
-		// Check if the turns are correct
-		if (
-			(game.chess.turn() === "w" && socket.id !== game.white) ||
-			(game.chess.turn() === "b" && socket.id !== game.black)
-		) {
-			return;
-		}
-
 		try {
-			game.chess.move({ from, to, promotion });
+			if (!socket.data.gameInfo) return;
+			const { game, gameId } = socket.data.gameInfo;
+			game.disconnected(userId);
 
-			io.to(roomId).emit("moveRes", game.chess.fen());
-
-			const gameOverInfo = getGameOverInfo(game.chess);
-			if (gameOverInfo) {
-				io.to(roomId).emit("gameOver", gameOverInfo);
-			}
-
-			const timeDifference = new Date().getTime() - game.lastMoveTime;
-			game.lastMoveTime = new Date().getTime();
-			if (game.chess.turn() === "w") {
-				game.blackTimeMs -= timeDifference;
-			} else {
-				game.whiteTimeMs -= timeDifference;
-			}
-
-			sendGameState(roomId, game);
+			socket.to(gameId).emit("game:player-disconnected");
 		} catch (err) {
-			console.log(`Invalid move from ${from} to ${to}`, err);
+			console.error("disconnect error:", toErrorMessage(err));
 		}
 	});
 
-	socket.on("createGame", (callback) => {
-		leaveCurrentGame();
+	socket.on("game:sync", (cb: (sync: GameSync) => void) => {
+		try {
+			if (!socket.data.gameInfo) {
+				throw new Error("You are not in a game");
+			}
+			const userId = socket.data.userId;
+			const { game, gameId } = socket.data.gameInfo;
 
-		const roomId = `room-${crypto.randomUUID()}`;
-
-		games.set(roomId, {
-			chess: new Chess(),
-			id: roomId,
-			white: socket.id,
-			black: undefined,
-			whiteTimeMs: 600_000,
-			blackTimeMs: 600_000,
-			lastMoveTime: new Date().getTime(),
-		});
-
-		socket.join(roomId);
-		socket.data.roomId = roomId;
-
-		sendGameState(roomId, games.get(roomId)!);
-
-		callback({
-			success: true,
-			roomId,
-			color: "w",
-		});
-	});
-
-	socket.on("joinGame", (roomId, callback) => {
-		const game = games.get(roomId);
-
-		if (!game) {
-			callback({
-				success: false,
-				message: "Game doesn't exist",
+			cb({
+				ok: true,
+				gameId,
+				color: game.getColor(userId),
+				opponentId: game.getMyOpponent(userId),
+				fen: game.getFEN(),
+				turn: game.getTurn(),
 			});
-			return;
-		}
-
-		// White (or black) is already connected.
-		if (game.white === socket.id || game.black === socket.id) {
-			const color = game.white === socket.id ? "w" : "b";
-			socket.emit("moveRes", game.chess.fen());
-
-			sendGameState(roomId, game);
-			callback({
-				success: true,
-				color,
+		} catch (err) {
+			cb({
+				ok: false,
+				error: toErrorMessage(err),
 			});
-			return;
 		}
-
-		// Game is full
-		if (game.white && game.black) {
-			callback({
-				success: false,
-				message: "Game is full",
-			});
-			return;
-		}
-
-		leaveCurrentGame();
-
-		// New Socket
-		let color: "w" | "b";
-		if (!game.white) {
-			game.white = socket.id;
-			color = "w";
-		} else {
-			game.black = socket.id;
-			color = "b";
-		}
-
-		socket.data.roomId = roomId;
-		socket.join(roomId);
-
-		io.to(roomId).emit("moveRes", game.chess.fen());
-		sendGameState(roomId, game);
-		callback({
-			success: true,
-			color,
-		});
-	});
-
-	socket.on("getHistory", (callback) => {
-		const roomId = socket.data.roomId;
-		if (!roomId) return;
-
-		const game = games.get(roomId);
-		if (!game) return;
-
-		callback(game.chess.history());
 	});
 });
-
-function getGameOverInfo(chess: Chess): GameOverInfo | undefined {
-	if (!chess.isGameOver()) return;
-
-	if (chess.isCheckmate()) {
-		return {
-			reason: "Checkmate",
-			winner: chess.turn() === "w" ? "b" : "w",
-		};
-	} else {
-		if (chess.isStalemate()) {
-			return { reason: "Stalemate", winner: "d" };
-		} else if (chess.isInsufficientMaterial()) {
-			return { reason: "Insufficient Material", winner: "d" };
-		} else if (chess.isThreefoldRepetition()) {
-			return { reason: "Threefold Repetition", winner: "d" };
-		} else if (chess.isDrawByFiftyMoves()) {
-			return { reason: "Fifty-Move Rule", winner: "d" };
-		} else {
-			return { reason: "Draw", winner: "d" };
-		}
-	}
-}

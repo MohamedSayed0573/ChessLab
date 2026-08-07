@@ -1,165 +1,164 @@
-import {
-	type ChessboardOptions,
-	type PieceDropHandlerArgs,
-} from "react-chessboard";
+import { type ChessboardOptions, type PieceDropHandlerArgs } from "react-chessboard";
 import { Chess } from "chess.js";
 import { useEffect, useState } from "react";
-import { socket } from "../socket";
 import { useParams } from "react-router";
-import type { GameOverInfo, JoinGameRes } from "@chesslab/shared/types";
-import ChessBoard from "../components/chessBoard";
-import SideBar from "../components/chessSidebar";
-import { Timer } from "../components/Timer";
-import useUser from "../hooks/useUser";
+import type {
+	GameStateEvent,
+	GameMoveAck,
+	MoveMadeEvent,
+	PlayerJoinedEvent,
+	PlayerColor,
+	GameSync,
+} from "@chesslab/shared/types";
+import ChessBoard from "@components/chessBoard";
+import SideBar from "@components/chessSidebar";
+import { useSocket } from "@hooks/useSocket";
 
 export default function PlayerGame() {
-	const { roomId } = useParams();
+	const { roomId: gameId } = useParams();
+	const { socket } = useSocket();
 
-	// track the current position of the chess game in state to trigger a re-render of the chessboard
-	const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
-	const [color, setColor] = useState<"w" | "b">("w");
-	const [gameOverInfo, setGameOverInfo] = useState<
-		GameOverInfo | undefined
-	>();
-	const { user } = useUser();
-
-	const [whiteTime, setWhiteTime] = useState<number>();
-	const [blackTime, setBlackTime] = useState<number>();
-	const [currentTurn, setCurrentTurn] = useState<"w" | "b">(color);
-	const [lastMoveTime, setLastMoveTime] = useState<number>();
-	const [whiteDisplay, setWhiteDisplay] = useState<number>(600_000);
-	const [blackDisplay, setBlackDisplay] = useState<number>(600_000);
-
-	const [gameHistory, setGameHistory] = useState<string[]>();
+	const [chessGame] = useState(new Chess());
+	const [chessPosition, setChessPosition] = useState(() => chessGame.fen());
+	const [gameOverInfo, setGameOverInfo] = useState<GameStateEvent | undefined>();
+	const [opponentId, setOpponentId] = useState<string | undefined>();
+	const [color, setColor] = useState<PlayerColor | undefined>();
+	const [, setTurn] = useState<PlayerColor | undefined>();
+	const [isGameStarted, setGameStarted] = useState(false);
 
 	useEffect(() => {
-		if (!roomId) return;
+		if (!gameId) return;
 
-		function handleMove(fen: string) {
+		function handleMove({ fen, turn }: MoveMadeEvent) {
+			chessGame.load(fen);
 			setChessPosition(fen);
-			socket.emit("getHistory", (res: string[]) => {
-				setGameHistory(res);
-			});
+			setTurn(turn);
 		}
 
-		function joinGame() {
-			socket.emit("joinGame", roomId, (res: JoinGameRes) => {
-				if (!res.success) return;
-				setColor(res.color);
-			});
-		}
-
-		function handleGameOver(gameOverInfo: GameOverInfo) {
+		function handleGameOver(gameOverInfo: GameStateEvent) {
 			setGameOverInfo(gameOverInfo);
 		}
 
-		socket.on("moveRes", handleMove);
-		socket.on("gameOver", handleGameOver);
-		socket.on("connect", joinGame);
-
-		type GameStateType = {
-			whiteTimeMs: number;
-			blackTimeMs: number;
-			currentTurn: "w" | "b";
-			lastMoveTime: number;
-		};
-
-		function handleGameState({
-			whiteTimeMs,
-			blackTimeMs,
-			currentTurn,
-			lastMoveTime,
-		}: GameStateType) {
-			setWhiteTime(whiteTimeMs);
-			setBlackTime(blackTimeMs);
-
-			setCurrentTurn(currentTurn);
-			setLastMoveTime(lastMoveTime);
-
-			setWhiteDisplay(whiteTimeMs);
-			setBlackDisplay(blackTimeMs);
+		function handleOpponentJoined({ opponentId }: PlayerJoinedEvent) {
+			setOpponentId(opponentId);
 		}
 
-		socket.on("gameState", handleGameState);
-
-		if (socket.connected) {
-			joinGame();
-		} else {
-			socket.connect();
+		function handleGameStarted() {
+			setGameStarted(true);
 		}
 
-		return () => {
-			socket.off("moveRes", handleMove);
-			socket.off("gameOver", handleGameOver);
-			socket.off("connect", joinGame);
-			socket.off("gameState", handleGameState);
-		};
-	}, [roomId]);
-
-	useEffect(() => {
-		const interval = setInterval(() => {
-			if (gameOverInfo?.winner) {
-				clearInterval(interval);
+		socket.on("game:game-over", handleGameOver);
+		socket.on("game:game-move", handleMove);
+		socket.on("game:move-made", handleMove);
+		socket.on("game:game-started", handleGameStarted);
+		socket.on("game:player-joined", handleOpponentJoined);
+		socket.emit("game:sync", (res: GameSync) => {
+			if (!res.ok) {
+				console.error("game:sync failed:", res.error);
 				return;
 			}
-			if (!currentTurn || !lastMoveTime) return;
-			const elapsed = Date.now() - lastMoveTime!;
-
-			if (currentTurn === "w") {
-				setWhiteDisplay(whiteTime! - elapsed);
-			} else {
-				setBlackDisplay(blackTime! - elapsed);
+			setColor(res.color);
+			setOpponentId(res.opponentId);
+			chessGame.load(res.fen);
+			setChessPosition(res.fen);
+			setTurn(res.turn);
+			if (res.opponentId) {
+				setGameStarted(true);
 			}
-		}, 1000);
+		});
 
-		return () => clearInterval(interval);
-	}, [currentTurn, lastMoveTime, whiteTime, blackTime, gameOverInfo?.winner]);
+		return () => {
+			socket.off("game:move-made", handleMove);
+			socket.off("game:game-move", handleMove);
+			socket.off("game:game-over", handleGameOver);
+			socket.off("game:game-started", handleGameStarted);
+			socket.off("game:player-joined", handleOpponentJoined);
+		};
+	}, [gameId, socket, chessGame]);
 
-	// handle piece drop
 	function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
-		// type narrow targetSquare potentially being null (e.g. if dropped off board)
-		if (!targetSquare || gameOverInfo?.winner) {
+		if (!targetSquare || gameOverInfo?.gameOver || !isGameStarted || !color) {
 			return false;
 		}
 
-		socket.emit("move", {
-			promotion: "q",
-			from: sourceSquare,
-			to: targetSquare,
-		});
+		const chess = chessGame;
+
+		// Local turn check — avoid emitting when it's not our turn
+		if (chess.turn() !== color) {
+			return false;
+		}
+
+		const previousFen = chess.fen();
+
+		try {
+			const move = chess.move({
+				from: sourceSquare,
+				to: targetSquare,
+				promotion: "q",
+			});
+			if (!move) return false;
+		} catch {
+			// chess.js throws on illegal moves
+			return false;
+		}
+
+		// Optimistic UI: show the move immediately
+		setChessPosition(chess.fen());
+		setTurn(chess.turn());
+
+		socket.emit(
+			"game:move",
+			{
+				promotion: "q",
+				from: sourceSquare,
+				to: targetSquare,
+			},
+			(data: GameMoveAck) => {
+				if (data.ok) {
+					chessGame.load(data.fen);
+					setChessPosition(data.fen);
+					setTurn(data.turn);
+				} else {
+					chess.load(previousFen);
+					setChessPosition(previousFen);
+					setTurn(chess.turn());
+					console.error("game:move rejected:", data.error);
+				}
+			},
+		);
 
 		return true;
 	}
 
-	// set the chessboard options
 	const chessboardOptions: ChessboardOptions = {
 		position: chessPosition,
 		onPieceDrop,
-		id: roomId!,
+		// react-chessboard uses `#${id}-square-…` in querySelector; CSS ids
+		// cannot start with a digit, so raw UUIDs (e.g. 94632a9e-…) throw.
+		id: gameId ? `board-${gameId}` : "board",
 		boardOrientation: color === "w" ? "white" : "black",
 	};
 
-	// render the chessboard
 	return (
 		<>
 			<div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312] sm:mr-120">
-				<Timer
+				{/*<Timer
 					side={color === "w" ? "b" : "w"}
 					blackDisplayTime={blackDisplay!}
 					whiteDisplayTime={whiteDisplay!}
 					currentTurn={currentTurn!}
 					playerName={"Opponent"}
-				/>
+				/>*/}
 				<ChessBoard chessboardOptions={chessboardOptions} />
-				<Timer
+				{/*<Timer
 					currentTurn={currentTurn!}
 					side={color}
 					blackDisplayTime={blackDisplay!}
 					whiteDisplayTime={whiteDisplay!}
 					playerName={user?.name || "You"}
-				/>
+				/>*/}
 			</div>
-			<SideBar gameOverInfo={gameOverInfo} gameHistory={gameHistory} />
+			<SideBar opponent={opponentId} gameState={gameOverInfo} />
 		</>
 	);
 }

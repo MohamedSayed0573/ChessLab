@@ -1,17 +1,13 @@
 import { type Request, type Response } from "express";
 import { refreshTokensTable, usersTable } from "@database/schema.js";
 import { and, eq, gt, or } from "drizzle-orm";
-import {
-	clearCookie,
-	generateJWT,
-	saveCookie,
-	verifyPassword,
-} from "@utils/authUtils.js";
+import { clearCookie, generateJWT, saveCookie, verifyPassword } from "@utils/authUtils.js";
 import { COOKIE_NAMES } from "@/constants.js";
-import { db } from "@/config/db.js";
+import { db } from "@config/db.js";
 import * as argon2 from "argon2";
 import { BadRequestError, UnauthorizedError } from "@/errors.js";
-import { env } from "@/config/env.js";
+import { env } from "@config/env.js";
+import type { LoginResponse, RegisterResponse } from "@chesslab/shared/types";
 
 export async function loginController(req: Request, res: Response) {
 	const { email, password } = req.body;
@@ -26,8 +22,7 @@ export async function loginController(req: Request, res: Response) {
 	if (!user) throw new UnauthorizedError("Invalid email or password");
 
 	const validPassword = await verifyPassword(password, user.passwordHashed);
-	if (!validPassword)
-		throw new UnauthorizedError("Invalid email or password");
+	if (!validPassword) throw new UnauthorizedError("Invalid email or password");
 
 	const refreshToken = crypto.randomUUID() as string;
 	saveCookie(res, COOKIE_NAMES.JWT, refreshToken);
@@ -42,7 +37,7 @@ export async function loginController(req: Request, res: Response) {
 	res.status(200).json({
 		success: true,
 		accessToken,
-	});
+	} satisfies LoginResponse);
 }
 
 export async function registerController(req: Request, res: Response) {
@@ -51,9 +46,7 @@ export async function registerController(req: Request, res: Response) {
 	const [alreadyExists] = await db
 		.select()
 		.from(usersTable)
-		.where(
-			or(eq(usersTable.username, username), eq(usersTable.email, email)),
-		);
+		.where(or(eq(usersTable.username, username), eq(usersTable.email, email)));
 
 	if (alreadyExists?.username === username) {
 		throw new BadRequestError("Username already exists");
@@ -89,15 +82,12 @@ export async function registerController(req: Request, res: Response) {
 	res.status(201).json({
 		success: true,
 		accessToken,
-	});
+	} satisfies RegisterResponse);
 }
 
 export async function meController(req: Request, res: Response) {
 	const userId = req.userId;
-	const [user] = await db
-		.select()
-		.from(usersTable)
-		.where(eq(usersTable.id, userId));
+	const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
 
 	if (!user) throw new BadRequestError("user doesn't exist");
 
@@ -127,9 +117,7 @@ export async function logoutController(req: Request, res: Response) {
 export async function refreshController(req: Request, res: Response) {
 	const refreshToken = req.cookies.jwt;
 	if (!refreshToken) {
-		return res
-			.status(401)
-			.json({ success: false, message: "No refresh token provided" });
+		return res.status(401).json({ success: false, message: "No refresh token provided" });
 	}
 
 	// Find the user using the refresh token

@@ -4,18 +4,17 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "src",
-		"baseUrl": ".",
-		"ignoreDeprecations": "6.0",
 		"paths": {
-			"@/*": ["src/*"],
-			"@middleware/*": ["src/middleware/*"],
-			"@controllers/*": ["src/controllers/*"],
-			"@routes/*": ["src/routes/*"],
-			"@sockets/*": ["src/sockets/*"],
-			"@app-types/*": ["src/types/*"],
-			"@utils/*": ["src/utils/*"],
-			"@database/*": ["src/database/*"],
-			"@config/*": ["src/config/*"]
+			"@/*": ["./src/*"],
+			"@middleware/*": ["./src/middleware/*"],
+			"@controllers/*": ["./src/controllers/*"],
+			"@routes/*": ["./src/routes/*"],
+			"@sockets/*": ["./src/sockets/*"],
+			"@app-types/*": ["./src/types/*"],
+			"@utils/*": ["./src/utils/*"],
+			"@database/*": ["./src/database/*"],
+			"@config/*": ["./src/config/*"],
+			"@game/*": ["./src/game/*"]
 		}
 	}
 }

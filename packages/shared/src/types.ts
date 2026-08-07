@@ -1,19 +1,25 @@
 export type PlayerColor = "w" | "b";
 
-export type CreateGameRes = {
-	success: true;
-	roomId: string;
-	color: "w";
-};
-
-export type JoinGameRes =
+export type CreateGameAck =
 	| {
-			success: false;
-			message: string;
+			ok: true;
+			gameId: string;
 	  }
 	| {
-			success: true;
-			color: PlayerColor;
+			ok: false;
+			error: string;
+			gameId?: string;
+	  };
+
+export type JoinGameAck =
+	| {
+			ok: true;
+			gameId: string;
+	  }
+	| {
+			ok: false;
+			error: string;
+			gameId?: string;
 	  };
 
 export type GameOverInfo = {
@@ -27,6 +33,71 @@ export type GameOverInfo = {
 	winner: "w" | "b" | "d";
 };
 
+export interface GameStateEvent {
+	gameOver: boolean;
+	reason:
+		| "Resignation"
+		| "Draw by Agreement"
+		| "Checkmate"
+		| "Stalemate"
+		| "Threefold Repetition"
+		| "Insufficient Material"
+		| "Fifty-Move Rule"
+		| "Timeout"
+		| "Abandonment"
+		| undefined;
+	winnerColor: "w" | "b" | "d" | undefined;
+}
+
+export type PromotionPiece = "q" | "r" | "b" | "n";
+
+export type PlayerJoinedEvent = {
+	gameId: string;
+	opponentColor: PlayerColor;
+	opponentId: string;
+};
+
+export type MoveMadeEvent = {
+	fen: string;
+	turn: PlayerColor;
+};
+
+export type GameMoveAck =
+	| {
+			ok: true;
+			fen: string;
+			turn: PlayerColor;
+	  }
+	| {
+			ok: false;
+			error: string;
+	  };
+
+export type GameSync =
+	| {
+			ok: true;
+			gameId: string;
+			color: PlayerColor;
+			opponentId: string | undefined;
+			fen: string;
+			turn: PlayerColor;
+	  }
+	| {
+			ok: false;
+			error: string;
+	  };
+
+export type GameHistoryAck =
+	| {
+			ok: true;
+			gameId: string;
+			history: string[];
+	  }
+	| {
+			ok: false;
+			error: string;
+	  };
+
 export type User = {
 	id: number;
 	name: string;
@@ -37,3 +108,17 @@ export type User = {
 	createdAt: string;
 	updatedAt?: string | undefined;
 };
+
+type ServerError = {
+	success: false;
+	message: string;
+};
+
+type Success<T> = {
+	success: true;
+} & T;
+
+type ApiResponse<T> = Success<T> | ServerError;
+
+export type LoginResponse = ApiResponse<{ accessToken: string }>;
+export type RegisterResponse = ApiResponse<{ accessToken: string }>;

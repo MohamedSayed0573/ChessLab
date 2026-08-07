@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router";
-import { routes } from "../routes";
+import { routes } from "@/routes";
 import type React from "react";
 import { useState } from "react";
-import useCreateGame from "../hooks/useCreateGame";
-import useJoinGame from "../hooks/useJoinGame";
-import TrendingUpIcon from "../icons/TrendingUpIcon";
-import RookIcon from "../icons/RookIcon";
-import RocketIcon from "../icons/RocketIcon";
+import useCreateGame from "@hooks/useCreateGame";
+import useJoinGame from "@hooks/useJoinGame";
+import TrendingUpIcon from "@icons/TrendingUpIcon";
+import RookIcon from "@icons/RookIcon";
+import RocketIcon from "@icons/RocketIcon";
 
 export default function PlayPage() {
 	const navigate = useNavigate();
@@ -38,10 +38,7 @@ export default function PlayPage() {
 				<JoinRoomCard />
 			</CardsSection>
 			{errorMessage && (
-				<ErrorMessage
-					errorMessage={errorMessage}
-					clearMessage={clearMessage}
-				/>
+				<ErrorMessage errorMessage={errorMessage} clearMessage={clearMessage} />
 			)}
 		</div>
 	);
@@ -73,9 +70,7 @@ function FeatureCard({
 			<span className="material-symbols-outlined self-start rounded-xl bg-[#22511C]/30 p-3">
 				{icon}
 			</span>
-			<span className="mt-2 text-[16px] font-semibold text-[#E8E1DC]">
-				{label}
-			</span>
+			<span className="mt-2 text-[16px] font-semibold text-[#E8E1DC]">{label}</span>
 			<span className="text-[16px] text-[#C2C9B6]">{description}</span>
 			<button
 				className="self-start rounded pt-2 text-sm font-bold text-[#9FD491] hover:cursor-pointer"
@@ -112,15 +107,10 @@ function JoinRoomCard() {
 					joinGame(roomId);
 				}}
 			>
-				<span className="text-base font-bold text-[#E8E1DC]">
-					Join Game
-				</span>
+				<span className="text-base font-bold text-[#E8E1DC]">Join Game</span>
 			</button>
 			{errorMessage && (
-				<ErrorMessage
-					clearMessage={clearMessage}
-					errorMessage={errorMessage}
-				/>
+				<ErrorMessage clearMessage={clearMessage} errorMessage={errorMessage} />
 			)}
 		</div>
 	);
@@ -134,9 +124,8 @@ function Hero() {
 				Master the Board, Define Your Strategy.
 			</h1>
 			<p className="text-lg text-[#C2C9B6]">
-				Experience the world's most advanced chess arena. Compete
-				against grandmasters or hone your skills against precision-
-				tuned neural engines.
+				Experience the world's most advanced chess arena. Compete against grandmasters or
+				hone your skills against precision- tuned neural engines.
 			</p>
 			<button
 				onClick={() => createGame()}
@@ -146,10 +135,7 @@ function Hero() {
 				<span>Play Online</span>
 			</button>
 			{errorMessage && (
-				<ErrorMessage
-					clearMessage={clearMessage}
-					errorMessage={errorMessage}
-				/>
+				<ErrorMessage clearMessage={clearMessage} errorMessage={errorMessage} />
 			)}
 		</div>
 	);
@@ -188,12 +174,8 @@ function BoardCard() {
 					<TrendingUpIcon />
 				</div>
 				<div className="flex flex-col gap-2">
-					<span className="text-xs font-medium text-[#C2C9B6]">
-						Daily Win Rate
-					</span>
-					<span className="text-lg font-bold text-[#E8E1DC]">
-						53.6%
-					</span>
+					<span className="text-xs font-medium text-[#C2C9B6]">Daily Win Rate</span>
+					<span className="text-lg font-bold text-[#E8E1DC]">53.6%</span>
 				</div>
 			</div>
 		</div>

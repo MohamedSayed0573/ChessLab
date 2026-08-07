@@ -1,13 +1,11 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-	NODE_ENV: z
-		.enum(["development", "production", "test"])
-		.default("development"),
+	NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 	CLIENT_URL: z
 		.string()
 		.transform((urls) => urls.split(",").map((url) => url.trim()))
-		.default(["http://localhost:5173"]),
+		.default(["http://localhost:4173"]),
 	PORT: z.coerce.number().int().positive().default(3000),
 
 	DATABASE_URL: z.string().min(1),
@@ -15,11 +13,7 @@ const envSchema = z.object({
 	JWT_SECRET: z.string().min(10),
 	JWT_EXPIRES_IN_S: z.coerce.number().int().positive().default(604800), // 7 days in seconds
 	COOKIE_EXPIRES_IN_MS: z.coerce.number().int().positive().default(604800000), // 7 days in milliseconds
-	REFRESH_TOKEN_EXPIRES_IN: z.coerce
-		.number()
-		.int()
-		.positive()
-		.default(604800000), // 7 Days
+	REFRESH_TOKEN_EXPIRES_IN: z.coerce.number().int().positive().default(604800000), // 7 Days
 
 	S3_ENDPOINT: z.url().optional(),
 	S3_ACCESS_KEY_ID: z.string().optional(),

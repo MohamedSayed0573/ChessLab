@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router";
-import { socket } from "../socket";
 import { useState } from "react";
-import type { CreateGameRes } from "@chesslab/shared/types";
-import { routes } from "../routes";
+import type { CreateGameAck } from "@chesslab/shared/types";
+import { routes } from "@/routes";
+import { useSocket } from "@hooks/useSocket";
+import { toErrorMessage } from "@chesslab/shared/errors";
 
 export default function useCreateGame() {
+	const { socket } = useSocket();
 	const navigate = useNavigate();
 	const [errorMessage, setErrorMessage] = useState<string>();
 	const createGame = () => {
@@ -13,7 +15,6 @@ export default function useCreateGame() {
 				() => setErrorMessage("Server took too long to respond"),
 				5000,
 			);
-			socket.connect();
 
 			const onError = (err: Error) => {
 				clearTimeout(timeout);
@@ -21,18 +22,22 @@ export default function useCreateGame() {
 			};
 
 			socket.on("connect_error", onError);
-			socket.emit("createGame", ({ roomId }: CreateGameRes) => {
+			socket.emit("game:create", (res: CreateGameAck) => {
 				clearTimeout(timeout);
 				socket.off("connect_error", onError);
 
-				if (!roomId) {
-					setErrorMessage("Failed to create game");
+				if (!res.ok) {
+					setErrorMessage(
+						res.gameId
+							? `You are already in an active game ${res.gameId}. Join it to continue`
+							: res.error,
+					);
 					return;
 				}
-				navigate(routes.game.path(roomId));
+				navigate(routes.game.path(res.gameId));
 			});
 		} catch (err) {
-			setErrorMessage(err instanceof Error ? err.message : String(err));
+			setErrorMessage(toErrorMessage(err));
 		}
 	};
 

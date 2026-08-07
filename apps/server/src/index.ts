@@ -1,14 +1,8 @@
-import { createServer } from "node:http";
-
 import "dotenv/config";
-import app from "@/app.js";
-import { Server } from "socket.io";
 import { env } from "./config/env.js";
+import { server } from "./io.js";
+import "./sockets/socket.js";
 
-const server = createServer(app);
-
-export const io = new Server(server, { cors: { origin: "*" } });
-
-server.listen(env.PORT, () => {
+server.listen(env.PORT, "0.0.0.0", () => {
 	console.log(`Server is running at http://localhost:${env.PORT}`);
 });

@@ -27,6 +27,15 @@ export default defineConfig([
 					argsIgnorePattern: "^_",
 				},
 			],
+
+			"no-restricted-syntax": [
+				"error",
+				{
+					selector: "BinaryExpression[operator='instanceof'][right.name='Error']",
+					message:
+						"Do not manually format errors. Import and use `toErrorMessage(err)` from @chesslab/shared/errors instead.",
+				},
+			],
 		},
 	},
 ]);

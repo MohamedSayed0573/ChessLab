@@ -5,11 +5,24 @@
 		"moduleResolution": "bundler",
 		"noEmit": true,
 		"target": "es2023",
-		"lib": ["ES2023", "DOM"],
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
 		"module": "esnext",
 		"types": ["vite/client"],
 		"allowArbitraryExtensions": true,
-		"allowImportingTsExtensions": true
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"@/*": ["./src/*"],
+			"@assets/*": ["./src/assets/*"],
+			"@components/*": ["./src/components/*"],
+			"@contexts/*": ["./src/contexts/*"],
+			"@hooks/*": ["./src/hooks/*"],
+			"@icons/*": ["./src/icons/*"],
+			"@layouts/*": ["./src/layouts/*"],
+			"@pages/*": ["./src/pages/*"],
+			"@stockfish/*": ["./src/stockfish/*"],
+			"@app-types/*": ["./src/types/*"],
+			"@utils/*": ["./src/utils/*"]
+		}
 	},
 	"include": ["vite.config.ts", "src"]
 }

@@ -1,38 +1,41 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { socket } from "../socket";
-import type { JoinGameRes } from "@chesslab/shared/types";
-import { routes } from "../routes";
+import type { JoinGameAck } from "@chesslab/shared/types";
+import { routes } from "@/routes";
+import { useSocket } from "@hooks/useSocket";
 
 export default function useJoinGame() {
 	const navigate = useNavigate();
+	const { socket } = useSocket();
 	const [errorMessage, setErrorMessage] = useState<string>();
-	const joinGame = (roomId: string) => {
-		if (!roomId) {
-			setErrorMessage("Enter a code to join");
+
+	const joinGame = (gameId: string) => {
+		if (!gameId) {
+			setErrorMessage("Enter the game Id to join");
 			return;
 		}
 
-		const timeout = setTimeout(
-			() => setErrorMessage("Server took too long to respond"),
-			5000,
-		);
-		socket.connect();
+		const timeout = setTimeout(() => setErrorMessage("Server took too long to respond"), 5000);
 
 		const onError = (err: Error) => {
 			clearTimeout(timeout);
 			setErrorMessage(err.message);
 		};
+
 		socket.on("connect_error", onError);
-		const trimmedRoomId = roomId.trim();
-		socket.emit("joinGame", trimmedRoomId, (res: JoinGameRes) => {
+		const trimmedgameId = gameId.trim();
+		socket.emit("game:join", trimmedgameId, (res: JoinGameAck) => {
 			socket.off("connect_error", onError);
 			clearTimeout(timeout);
-			if (!res.success) {
-				setErrorMessage(res.message);
+			if (!res.ok) {
+				setErrorMessage(
+					res.gameId
+						? `You are already in an active game ${res.gameId}. Join it to continue`
+						: res.error,
+				);
 				return;
 			}
-			navigate(routes.game.path(trimmedRoomId));
+			navigate(routes.game.path(trimmedgameId));
 		});
 	};
 
