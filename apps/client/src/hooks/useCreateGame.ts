@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { CreateGameAck } from "@chesslab/shared/types";
 import { routes } from "@/routes";
 import { useSocket } from "@hooks/useSocket";
+import { toErrorMessage } from "@chesslab/shared/errors";
 
 export default function useCreateGame() {
 	const { socket } = useSocket();
@@ -32,7 +33,7 @@ export default function useCreateGame() {
 				navigate(routes.game.path(res.gameId));
 			});
 		} catch (err) {
-			setErrorMessage(err instanceof Error ? err.message : String(err));
+			setErrorMessage(toErrorMessage(err));
 		}
 	};
 

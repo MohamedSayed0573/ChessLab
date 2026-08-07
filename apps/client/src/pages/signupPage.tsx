@@ -3,6 +3,8 @@ import RookIcon from "@icons/RookIcon";
 import { useState } from "react";
 import useAuth from "@hooks/useAuth";
 import { useApi } from "@hooks/useApi";
+import type { RegisterResponse } from "@chesslab/shared/types";
+import { toErrorMessage } from "@chesslab/shared/errors";
 
 export default function SignUpPage() {
 	return (
@@ -43,42 +45,53 @@ export default function SignUpPage() {
 
 function Form() {
 	const [error, setError] = useState<string | undefined>(undefined);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { setAccessToken } = useAuth();
 	const fetchApi = useApi();
 	const navigate = useNavigate();
 
 	async function submitForm(e: React.SubmitEvent<HTMLFormElement>) {
 		e.preventDefault();
+		setIsSubmitting(true);
 
-		const formData = new FormData(e.currentTarget);
+		try {
+			const formData = new FormData(e.currentTarget);
 
-		const name = formData.get("name");
-		const username = formData.get("username");
-		const email = formData.get("email");
-		const password = formData.get("password");
+			const name = formData.get("name");
+			const username = formData.get("username");
+			const email = formData.get("email");
+			const password = formData.get("password");
 
-		const res = await fetchApi("/auth/register", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				name,
-				email,
-				password,
-				username,
-			}),
-		});
+			const res = await fetchApi("/auth/register", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name,
+					email,
+					password,
+					username,
+				}),
+			});
 
-		const data = await res.json();
-		console.log(data);
+			if (!res.ok) {
+				setError(`Sign up failed, ${res.statusText}`);
+				return;
+			}
 
-		if (!data.success) {
-			setError(data.message);
-			return;
+			const data: RegisterResponse = await res.json();
+			if (!data.success) {
+				setError(data.message);
+				return;
+			}
+
+			setAccessToken(data.accessToken);
+
+			navigate("/");
+		} catch (err) {
+			setError(`Unable to reach the server. ${toErrorMessage(err)}`);
+		} finally {
+			setIsSubmitting(false);
 		}
-
-		setAccessToken(data.accessToken);
-
-		navigate("/");
 	}
 
 	return (
@@ -142,12 +155,12 @@ function Form() {
 
 				<button
 					type="submit"
+					disabled={isSubmitting}
 					className="rounded-md bg-[#81B64C] py-3 text-sm font-medium text-white hover:cursor-pointer hover:bg-[#5A6150]"
 				>
-					Register
+					{isSubmitting ? "Creating account…" : "Register"}
 				</button>
 			</form>
-
 			{error && (
 				<div className="mt-4 rounded-md bg-[#221F1C] px-4 py-3 text-sm text-red-500">
 					{error}

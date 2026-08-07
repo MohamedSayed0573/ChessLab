@@ -34,4 +34,13 @@ export class GameManager {
 
 		return undefined;
 	}
+
+	isPlayerInActiveGame(userId: string) {
+		for (const [gameId, game] of this.games.entries()) {
+			if (!game.isGameOver() && (userId === game.getWhite() || userId === game.getBlack())) {
+				return gameId;
+			}
+		}
+		return false;
+	}
 }

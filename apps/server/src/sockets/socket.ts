@@ -69,6 +69,15 @@ io.on("connection", (socket) => {
 
 	socket.on("game:create", (cb: (reply: CreateGameAck) => void) => {
 		try {
+			const activeGameId = gameManager.isPlayerInActiveGame(userId);
+			if (activeGameId) {
+				return cb({
+					ok: false,
+					error: "Already in a game",
+					gameId: activeGameId,
+				});
+			}
+
 			const { gameId, game } = gameManager.createGame(userId);
 			socket.join(gameId);
 			socket.data.gameInfo = { gameId, game };
@@ -93,9 +102,17 @@ io.on("connection", (socket) => {
 
 	socket.on("game:join", (gameId: string, cb: (reply: JoinGameAck) => void) => {
 		try {
+			const activeGameId = gameManager.isPlayerInActiveGame(userId);
+			if (activeGameId) {
+				return cb({
+					ok: false,
+					error: "Already in a game",
+					gameId: activeGameId,
+				});
+			}
+
 			// Already in this game — reattach to the room without re-emitting start events.
-			const existingGameId = gameManager.findGameIdByUser(userId);
-			if (existingGameId === gameId) {
+			if (socket.data.gameInfo) {
 				const game = gameManager.getGame(gameId);
 				socket.join(gameId);
 				socket.data.gameInfo = { gameId, game };

@@ -3,6 +3,8 @@ import RookIcon from "@icons/RookIcon";
 import { useState } from "react";
 import useAuth from "@hooks/useAuth";
 import { useApi } from "@hooks/useApi";
+import { toErrorMessage } from "@chesslab/shared/errors";
+import type { LoginResponse } from "@chesslab/shared/types";
 
 export default function LoginPage() {
 	return (
@@ -49,7 +51,6 @@ function Form() {
 
 	async function submitForm(e: React.SubmitEvent<HTMLFormElement>) {
 		e.preventDefault();
-		setError(undefined);
 		setIsSubmitting(true);
 
 		try {
@@ -67,25 +68,24 @@ function Form() {
 				}),
 			});
 
-			const data = (await res.json()) as {
-				success: boolean;
-				message?: string;
-				accessToken?: string;
-			};
+			if (!res.ok) {
+				setError(`Login failed (${res.statusText})`);
+				return;
+			}
 
-			if (!res.ok || !data.success || !data.accessToken) {
-				setError(data.message ?? `Login failed (${res.status})`);
+			const data: LoginResponse = await res.json();
+			if (!data.success) {
+				setError(data.message);
 				return;
 			}
 
 			setAccessToken(data.accessToken);
 
-			const from = (location.state as { from?: Location } | null)?.from;
+			const state = location.state as { from?: Location };
+			const from = state.from;
 			navigate(from ?? "/", { replace: true });
 		} catch (err) {
-			setError(
-				`Unable to reach the server. ${err instanceof Error ? err.message : String(err)}`,
-			);
+			setError(`Unable to reach the server. ${toErrorMessage(err)}`);
 		} finally {
 			setIsSubmitting(false);
 		}

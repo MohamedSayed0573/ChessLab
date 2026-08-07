@@ -8,6 +8,7 @@ export type CreateGameAck =
 	| {
 			ok: false;
 			error: string;
+			gameId?: string;
 	  };
 
 export type JoinGameAck =
@@ -18,6 +19,7 @@ export type JoinGameAck =
 	| {
 			ok: false;
 			error: string;
+			gameId?: string;
 	  };
 
 export type GameOverInfo = {
@@ -106,3 +108,17 @@ export type User = {
 	createdAt: string;
 	updatedAt?: string | undefined;
 };
+
+type ServerError = {
+	success: false;
+	message: string;
+};
+
+type Success<T> = {
+	success: true;
+} & T;
+
+type ApiResponse<T> = Success<T> | ServerError;
+
+export type LoginResponse = ApiResponse<{ accessToken: string }>;
+export type RegisterResponse = ApiResponse<{ accessToken: string }>;
