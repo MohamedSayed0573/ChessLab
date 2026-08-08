@@ -12,13 +12,18 @@ export function useCompTimer({ turn, side, isGameOver }: UseCompTimerProps) {
 	const [timeMs, setTimeMs] = useState(START_TIME_MS);
 	useEffect(() => {
 		if (isGameOver) return;
-		const timer = setInterval(() => {
-			if (turn === side) {
-				setTimeMs((prev) => prev - 250);
-			}
-		}, 250);
 
-		return () => clearInterval(timer);
+		let previousTime = Date.now();
+
+		const interval = setInterval(() => {
+			const now = Date.now();
+			const elapsed = now - previousTime;
+			previousTime = now;
+
+			setTimeMs((prev) => Math.max(0, prev - elapsed));
+		}, 100);
+
+		return () => clearInterval(interval);
 	}, [side, turn, isGameOver]);
 
 	return { timeMs, isTimeUp: timeMs <= 0 };
