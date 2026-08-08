@@ -10,6 +10,7 @@ import type {
 	PlayerJoinedEvent,
 	GameSync,
 	GameHistoryAck,
+	GameStartedEvent,
 } from "@chesslab/shared/types";
 import { toErrorMessage } from "@chesslab/shared/errors";
 import { io } from "@/io.js";
@@ -138,7 +139,9 @@ io.on("connection", (socket) => {
 			} as PlayerJoinedEvent);
 
 			game.start();
-			io.to(gameId).emit("game:game-started");
+			io.to(gameId).emit("game:game-started", {
+				timeInfo: game.getTimeInfo(),
+			} satisfies GameStartedEvent);
 
 			cb({
 				ok: true,
@@ -167,8 +170,9 @@ io.on("connection", (socket) => {
 			game.move(userId, from, to, promotion);
 			const fen = game.getFEN();
 			const turn = game.getTurn();
+			const timeInfo = game.getTimeInfo();
 
-			socket.to(gameId).emit("game:move-made", { fen, turn } as MoveMadeEvent);
+			socket.to(gameId).emit("game:move-made", { fen, turn, timeInfo } as MoveMadeEvent);
 
 			if (game.isGameOver()) {
 				io.to(gameId).emit("game:game-over", game.getGameStateEvent());
@@ -276,6 +280,7 @@ io.on("connection", (socket) => {
 				opponentId: game.getMyOpponent(userId),
 				fen: game.getFEN(),
 				turn: game.getTurn(),
+				timeInfo: game.getTimeInfo(),
 			});
 		} catch (err) {
 			cb({

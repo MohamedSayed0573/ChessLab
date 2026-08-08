@@ -3,10 +3,22 @@ import { useParams } from "react-router";
 import ChessBoard from "@components/chessBoard";
 import SideBar from "@components/chessSidebar";
 import { useChessGame } from "@hooks/useChessGame";
+import { Timer } from "@/components/Timer";
+import useUser from "@/hooks/useUser";
 
 export default function PlayerGame() {
 	const { roomId: gameId } = useParams();
-	const { onPieceDrop, chessPosition, color, opponentId, gameOverInfo } = useChessGame(gameId);
+	const {
+		onPieceDrop,
+		chessPosition,
+		color,
+		opponentId,
+		gameOverInfo,
+		blackTimeMs,
+		whiteTimeMs,
+		turn,
+	} = useChessGame(gameId);
+	const { user } = useUser();
 
 	const chessboardOptions: ChessboardOptions = {
 		position: chessPosition,
@@ -18,21 +30,19 @@ export default function PlayerGame() {
 	return (
 		<>
 			<div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312] sm:mr-120">
-				{/*<Timer
+				<Timer
 					side={color === "w" ? "b" : "w"}
-					blackDisplayTime={blackDisplay!}
-					whiteDisplayTime={whiteDisplay!}
-					currentTurn={currentTurn!}
+					displayTime={color === "w" ? blackTimeMs : whiteTimeMs}
+					currentTurn={turn}
 					playerName={"Opponent"}
-				/>*/}
+				/>
 				<ChessBoard chessboardOptions={chessboardOptions} />
-				{/*<Timer
-					currentTurn={currentTurn!}
+				<Timer
+					currentTurn={turn}
 					side={color}
-					blackDisplayTime={blackDisplay!}
-					whiteDisplayTime={whiteDisplay!}
+					displayTime={color === "w" ? whiteTimeMs : blackTimeMs}
 					playerName={user?.name || "You"}
-				/>*/}
+				/>
 			</div>
 			<SideBar opponent={opponentId} gameState={gameOverInfo} />
 		</>

@@ -1,34 +1,38 @@
-import type { GameOverInfo } from "@chesslab/shared/types";
+import type { GameStateEvent, TimeInfo } from "@chesslab/shared/types";
 import { useEffect, useState } from "react";
 
+export const START_TIME_MS = 60 * 10 * 1000; // 10 minutes, 600_000 ms
 export default function useTimer({
 	turn,
 	gameOverInfo,
+	timeInfo,
 }: {
 	turn: "w" | "b";
-	gameOverInfo: GameOverInfo | undefined;
+	gameOverInfo: GameStateEvent | undefined;
+	timeInfo: TimeInfo | undefined;
 }) {
-	const [whiteDisplayTime, setWhiteDisplayTime] = useState(600_000);
-	const [blackDisplayTime, setBlackDisplayTime] = useState(600_000);
+	const [whiteTimeMs, setWhiteTimeMs] = useState(START_TIME_MS);
+	const [blackTimeMs, setBlackTimeMs] = useState(START_TIME_MS);
 
 	useEffect(() => {
-		if (gameOverInfo) return;
-		let interval: NodeJS.Timeout | null = null;
+		if (gameOverInfo || !timeInfo) return;
 
-		if (turn === "w") {
-			interval = setInterval(() => {
-				setWhiteDisplayTime((prev) => Math.max(0, prev - 1000));
-			}, 1000);
-		} else {
-			interval = setInterval(() => {
-				setBlackDisplayTime((prev) => Math.max(0, prev - 1000));
-			}, 1000);
-		}
+		const interval = setInterval(() => {
+			const elapsed = timeInfo.lastMoveTime != null ? Date.now() - timeInfo.lastMoveTime : 0;
 
-		return () => {
-			if (interval) clearInterval(interval);
-		};
-	}, [turn, gameOverInfo]);
+			setWhiteTimeMs(
+				turn === "w" ? Math.max(0, timeInfo.whiteTimeMs - elapsed) : timeInfo.whiteTimeMs,
+			);
+			setBlackTimeMs(
+				turn === "b" ? Math.max(0, timeInfo.blackTimeMs - elapsed) : timeInfo.blackTimeMs,
+			);
+		}, 250);
 
-	return { whiteDisplayTime, blackDisplayTime };
+		return () => clearInterval(interval);
+	}, [turn, gameOverInfo, timeInfo]);
+
+	return {
+		whiteTimeMs,
+		blackTimeMs,
+	};
 }

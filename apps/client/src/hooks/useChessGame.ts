@@ -1,15 +1,18 @@
 import type {
 	GameMoveAck,
+	GameStartedEvent,
 	GameStateEvent,
 	GameSync,
 	MoveMadeEvent,
 	PlayerColor,
 	PlayerJoinedEvent,
+	TimeInfo,
 } from "@chesslab/shared/types";
 import { Chess } from "chess.js";
 import { useEffect, useState } from "react";
 import { useSocket } from "./useSocket";
 import type { PieceDropHandlerArgs } from "react-chessboard";
+import useTimer from "./useTimer";
 
 export function useChessGame(gameId?: string) {
 	const { socket } = useSocket();
@@ -18,16 +21,24 @@ export function useChessGame(gameId?: string) {
 	const [chessPosition, setChessPosition] = useState(() => chessGame.fen());
 	const [gameOverInfo, setGameOverInfo] = useState<GameStateEvent | undefined>();
 	const [opponentId, setOpponentId] = useState<string | undefined>();
-	const [color, setColor] = useState<PlayerColor | undefined>();
-	const [, setTurn] = useState<PlayerColor | undefined>();
+	const [color, setColor] = useState<PlayerColor>("w");
+	const [turn, setTurn] = useState<PlayerColor>("w");
 	const [isGameStarted, setGameStarted] = useState(false);
+	const [timeInfo, setTimeInfo] = useState<TimeInfo>();
+
+	const { whiteTimeMs, blackTimeMs } = useTimer({
+		turn,
+		gameOverInfo,
+		timeInfo,
+	});
 
 	useEffect(() => {
 		if (!gameId) return;
-		function handleMove({ fen, turn }: MoveMadeEvent) {
+		function handleMove({ fen, turn, timeInfo }: MoveMadeEvent) {
 			chessGame.load(fen);
 			setChessPosition(fen);
 			setTurn(turn);
+			setTimeInfo(timeInfo);
 		}
 
 		function handleGameOver(gameOverInfo: GameStateEvent) {
@@ -38,8 +49,9 @@ export function useChessGame(gameId?: string) {
 			setOpponentId(opponentId);
 		}
 
-		function handleGameStarted() {
+		function handleGameStarted({ timeInfo }: GameStartedEvent) {
 			setGameStarted(true);
+			setTimeInfo(timeInfo);
 		}
 
 		socket.on("game:game-over", handleGameOver);
@@ -51,11 +63,13 @@ export function useChessGame(gameId?: string) {
 				console.error("game:sync failed:", res.error);
 				return;
 			}
+			console.log(res);
 			setColor(res.color);
 			setOpponentId(res.opponentId);
 			chessGame.load(res.fen);
 			setChessPosition(res.fen);
 			setTurn(res.turn);
+			setTimeInfo(res.timeInfo);
 			if (res.opponentId) {
 				setGameStarted(true);
 			}
@@ -123,5 +137,14 @@ export function useChessGame(gameId?: string) {
 		return true;
 	}
 
-	return { onPieceDrop, color, chessPosition, opponentId, gameOverInfo };
+	return {
+		onPieceDrop,
+		color,
+		chessPosition,
+		opponentId,
+		gameOverInfo,
+		whiteTimeMs,
+		blackTimeMs,
+		turn,
+	};
 }

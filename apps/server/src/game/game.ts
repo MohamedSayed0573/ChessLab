@@ -186,6 +186,14 @@ export class Game extends EventEmitter {
 		return this.blackPlayerId;
 	}
 
+	getTimeInfo() {
+		return {
+			whiteTimeMs: this.whiteTimeMs,
+			blackTimeMs: this.blackTimeMs,
+			lastMoveTime: this.lastMoveTime,
+		};
+	}
+
 	resign(playerId: string) {
 		if (!this.isValidPlayerId(playerId)) throw new Error("Invalid Player Id");
 

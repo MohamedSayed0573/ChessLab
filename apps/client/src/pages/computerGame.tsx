@@ -6,7 +6,7 @@ import useStockfish from "@hooks/useStockfish";
 import useTimer from "@hooks/useTimer";
 import { Timer } from "@components/Timer";
 //import SideBar from "@components/chessSidebar";
-import type { GameOverInfo } from "@chesslab/shared/types";
+import type { GameStateEvent } from "@chesslab/shared/types";
 
 export default function ComputerChessBoard() {
 	const [chessGame] = useState(() => new Chess());
@@ -86,23 +86,22 @@ export default function ComputerChessBoard() {
 	);
 }
 
-function getGameOverInfo(chess: Chess): GameOverInfo | undefined {
+function getGameOverInfo(chess: Chess): GameStateEvent | undefined {
 	if (!chess.isGameOver()) return undefined;
 
 	if (chess.isCheckmate()) {
 		return {
+			gameOver: true,
 			reason: "Checkmate",
-			winner: chess.turn() === "w" ? "b" : "w",
+			winnerColor: chess.turn() === "w" ? "b" : "w",
 		};
 	} else if (chess.isStalemate()) {
-		return { reason: "Stalemate", winner: "d" };
+		return { gameOver: true, reason: "Stalemate", winnerColor: "d" };
 	} else if (chess.isInsufficientMaterial()) {
-		return { reason: "Insufficient Material", winner: "d" };
+		return { gameOver: true, reason: "Insufficient Material", winnerColor: "d" };
 	} else if (chess.isThreefoldRepetition()) {
-		return { reason: "Threefold Repetition", winner: "d" };
+		return { gameOver: true, reason: "Threefold Repetition", winnerColor: "d" };
 	} else if (chess.isDrawByFiftyMoves()) {
-		return { reason: "Fifty-Move Rule", winner: "d" };
-	} else {
-		return { reason: "Draw", winner: "d" };
+		return { gameOver: true, reason: "Fifty-Move Rule", winnerColor: "d" };
 	}
 }
