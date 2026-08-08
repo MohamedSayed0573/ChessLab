@@ -1,5 +1,5 @@
 import AuthLayout from "@layouts/AuthLayout";
-import useAuthForm from "@hooks/useAuthForm";
+import useAuthForm from "@hooks/auth/useAuthForm";
 import { AuthFormContainer } from "@components/AuthFormContainer";
 import { AuthFormItem } from "@components/AuthFormItem";
 

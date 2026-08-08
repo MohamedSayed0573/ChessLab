@@ -1,4 +1,5 @@
 import type { GameStateEvent, PromotionPiece } from "@chesslab/shared/types";
+import { getGameOverInfo } from "@chesslab/shared/utils";
 import { Chess } from "chess.js";
 import EventEmitter from "node:events";
 
@@ -137,7 +138,7 @@ export class Game extends EventEmitter {
 		this.clearTurnTimers();
 
 		if (this.chess.isGameOver()) {
-			this.evaluateGameOverState(playerId);
+			this.evaluateGameOverState();
 		} else {
 			this.scheduleTurnTimer();
 		}
@@ -184,6 +185,14 @@ export class Game extends EventEmitter {
 
 	getBlack() {
 		return this.blackPlayerId;
+	}
+
+	getTimeInfo() {
+		return {
+			whiteTimeMs: this.whiteTimeMs,
+			blackTimeMs: this.blackTimeMs,
+			lastMoveTime: this.lastMoveTime,
+		};
 	}
 
 	resign(playerId: string) {
@@ -254,27 +263,12 @@ export class Game extends EventEmitter {
 		return playerId === this.whitePlayerId || playerId === this.blackPlayerId;
 	}
 
-	private evaluateGameOverState(playerId: string) {
-		let reason: GameStateEvent["reason"];
-		let winnerColor: GameStateEvent["winnerColor"];
-		if (this.chess.isCheckmate()) {
-			reason = "Checkmate";
-			winnerColor = this.getColor(playerId);
-		} else if (this.chess.isDraw()) {
-			winnerColor = "d";
-			if (this.chess.isDrawByFiftyMoves()) reason = "Fifty-Move Rule";
-			else if (this.chess.isInsufficientMaterial()) reason = "Insufficient Material";
-			else if (this.chess.isStalemate()) reason = "Stalemate";
-			else if (this.chess.isThreefoldRepetition()) reason = "Threefold Repetition";
-		}
+	private evaluateGameOverState() {
+		const gameStateInfo = getGameOverInfo(this.chess);
+		if (!gameStateInfo) return;
 
+		this.GameStateEvent = gameStateInfo;
 		this.clearDisconnectTimeouts();
-
-		this.GameStateEvent = {
-			gameOver: true,
-			reason,
-			winnerColor,
-		};
 	}
 
 	private assertPlayerCanMove(playerId: string) {

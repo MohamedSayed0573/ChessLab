@@ -22,17 +22,6 @@ export type JoinGameAck =
 			gameId?: string;
 	  };
 
-export type GameOverInfo = {
-	reason:
-		| "Checkmate"
-		| "Stalemate"
-		| "Insufficient Material"
-		| "Threefold Repetition"
-		| "Fifty-Move Rule"
-		| "Draw";
-	winner: "w" | "b" | "d";
-};
-
 export interface GameStateEvent {
 	gameOver: boolean;
 	reason:
@@ -57,9 +46,20 @@ export type PlayerJoinedEvent = {
 	opponentId: string;
 };
 
+export type TimeInfo = {
+	whiteTimeMs: number;
+	blackTimeMs: number;
+	lastMoveTime: number | undefined;
+};
+
 export type MoveMadeEvent = {
 	fen: string;
 	turn: PlayerColor;
+	timeInfo: TimeInfo;
+};
+
+export type GameStartedEvent = {
+	timeInfo: TimeInfo;
 };
 
 export type GameMoveAck =
@@ -67,6 +67,7 @@ export type GameMoveAck =
 			ok: true;
 			fen: string;
 			turn: PlayerColor;
+			timeInfo: TimeInfo;
 	  }
 	| {
 			ok: false;
@@ -81,6 +82,7 @@ export type GameSync =
 			opponentId: string | undefined;
 			fen: string;
 			turn: PlayerColor;
+			timeInfo: TimeInfo;
 	  }
 	| {
 			ok: false;

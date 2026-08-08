@@ -1,7 +1,7 @@
 import type { User } from "@chesslab/shared/types";
 import { useEffect, useState } from "react";
 import { useApi } from "@hooks/useApi";
-import useAuth from "@hooks/useAuth";
+import useAuth from "@/hooks/auth/useAuth";
 
 export default function useFetchUser() {
 	const [user, setUser] = useState<User | undefined>(undefined);

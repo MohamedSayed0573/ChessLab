@@ -8,7 +8,7 @@ export default function SideBar({
 	gameState: GameStateEvent | undefined;
 }) {
 	return (
-		<div className="fixed top-0 right-0 hidden h-full w-120 border-l border-[#424A35] bg-[#1C1C1A] p-4 sm:block">
+		<div className="fixed top-0 right-0 h-full w-120 border-l border-[#424A35] bg-[#1C1C1A] p-4">
 			<div>
 				{opponent && (
 					<div>

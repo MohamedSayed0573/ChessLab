@@ -6,11 +6,13 @@ export default function useStockfish({
 	chessGame,
 	turn,
 	stockfishSide,
+	isGameOver,
 	onMove,
 }: {
 	chessGame: Chess;
 	turn: "w" | "b";
 	stockfishSide: "w" | "b";
+	isGameOver: boolean;
 	onMove: () => void;
 }) {
 	useEffect(() => {
@@ -25,7 +27,7 @@ export default function useStockfish({
 				const bestMove = parts[1];
 				if (bestMove && bestMove !== "(none)") {
 					try {
-						if (chessGame.isGameOver()) return;
+						if (isGameOver) return;
 						chessGame.move({
 							from: bestMove.substring(0, 2),
 							to: bestMove.substring(2, 4),
@@ -43,12 +45,12 @@ export default function useStockfish({
 			stockfish.postMessage("stop");
 			stockfish.onmessage = null;
 		};
-	}, [chessGame, onMove]);
+	}, [chessGame, onMove, isGameOver]);
 
 	useEffect(() => {
-		if (turn === stockfishSide && !chessGame.isGameOver()) {
+		if (turn === stockfishSide && !isGameOver) {
 			stockfish.postMessage(`position fen ${chessGame.fen()}`);
 			stockfish.postMessage("go depth 15");
 		}
-	}, [turn, chessGame, stockfishSide]);
+	}, [turn, chessGame, stockfishSide, isGameOver]);
 }

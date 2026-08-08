@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import useAuth from "./useAuth";
-import { useApi } from "./useApi";
+import { useApi } from "@hooks/useApi";
 import { useState } from "react";
 import type { LoginResponse, RegisterResponse } from "@chesslab/shared/types";
 import { toErrorMessage } from "@chesslab/shared/errors";
