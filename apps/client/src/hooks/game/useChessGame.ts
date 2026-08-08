@@ -120,15 +120,15 @@ export function useChessGame(gameId?: string) {
 			setTurn(chess.turn());
 		}
 
-		socket.timeout(2_000).emit(
+		socket.emit(
 			"game:move",
 			{
 				promotion: "q",
 				from: sourceSquare,
 				to: targetSquare,
 			},
-			(err: unknown, data: GameMoveAck) => {
-				if (err || !data?.ok) {
+			(data: GameMoveAck) => {
+				if (!data?.ok) {
 					fallbackMove();
 					return;
 				}
