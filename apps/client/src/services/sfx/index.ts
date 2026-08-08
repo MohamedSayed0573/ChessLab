@@ -29,9 +29,7 @@ export function playMoveSound(chess: Chess) {
 	const moves = chess.history({ verbose: true });
 	if (moves.length > 0) {
 		const lastMove = moves[moves.length - 1];
-		console.log(lastMove);
 		if (lastMove?.san.endsWith("+")) {
-			console.log(lastMove.san);
 			playSound("check");
 		} else if (lastMove?.isCapture()) {
 			playSound("capture");

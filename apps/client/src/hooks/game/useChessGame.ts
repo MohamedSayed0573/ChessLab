@@ -35,11 +35,11 @@ export function useChessGame(gameId?: string) {
 
 	const handleMove = useCallback(
 		({ fen, turn, timeInfo }: MoveMadeEvent) => {
+			playMoveSound(chessGame);
 			chessGame.load(fen);
 			setChessPosition(fen);
 			setTurn(turn);
 			setTimeInfo(timeInfo);
-			playMoveSound(chessGame);
 		},
 		[chessGame],
 	);
