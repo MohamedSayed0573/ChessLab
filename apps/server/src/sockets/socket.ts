@@ -182,6 +182,7 @@ io.on("connection", (socket) => {
 				ok: true,
 				fen,
 				turn,
+				timeInfo,
 			});
 		} catch (err) {
 			cb({

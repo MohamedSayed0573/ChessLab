@@ -9,7 +9,7 @@ import type {
 	TimeInfo,
 } from "@chesslab/shared/types";
 import { Chess } from "chess.js";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSocket } from "../useSocket";
 import type { ChessboardOptions, PieceDropHandlerArgs } from "react-chessboard";
 import useTimer from "./useTimer";
@@ -32,14 +32,18 @@ export function useChessGame(gameId?: string) {
 		timeInfo,
 	});
 
-	useEffect(() => {
-		if (!gameId) return;
-		function handleMove({ fen, turn, timeInfo }: MoveMadeEvent) {
+	const handleMove = useCallback(
+		({ fen, turn, timeInfo }: MoveMadeEvent) => {
 			chessGame.load(fen);
 			setChessPosition(fen);
 			setTurn(turn);
 			setTimeInfo(timeInfo);
-		}
+		},
+		[chessGame],
+	);
+
+	useEffect(() => {
+		if (!gameId) return;
 
 		function handleGameOver(gameOverInfo: GameStateEvent) {
 			setGameOverInfo(gameOverInfo);
@@ -63,13 +67,10 @@ export function useChessGame(gameId?: string) {
 				console.error("game:sync failed:", res.error);
 				return;
 			}
-			console.log(res);
 			setColor(res.color);
 			setOpponentId(res.opponentId);
-			chessGame.load(res.fen);
-			setChessPosition(res.fen);
-			setTurn(res.turn);
-			setTimeInfo(res.timeInfo);
+
+			handleMove(res);
 			if (res.opponentId) {
 				setGameStarted(true);
 			}
@@ -81,7 +82,7 @@ export function useChessGame(gameId?: string) {
 			socket.off("game:game-started", handleGameStarted);
 			socket.off("game:player-joined", handleOpponentJoined);
 		};
-	}, [socket, chessGame, gameId]);
+	}, [socket, chessGame, gameId, handleMove]);
 
 	function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
 		if (!targetSquare || gameOverInfo?.gameOver || !isGameStarted || !color) {
@@ -122,9 +123,7 @@ export function useChessGame(gameId?: string) {
 			},
 			(data: GameMoveAck) => {
 				if (data.ok) {
-					chessGame.load(data.fen);
-					setChessPosition(data.fen);
-					setTurn(data.turn);
+					handleMove(data);
 				} else {
 					chess.load(previousFen);
 					setChessPosition(previousFen);

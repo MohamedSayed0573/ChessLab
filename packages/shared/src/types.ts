@@ -67,6 +67,7 @@ export type GameMoveAck =
 			ok: true;
 			fen: string;
 			turn: PlayerColor;
+			timeInfo: TimeInfo;
 	  }
 	| {
 			ok: false;
