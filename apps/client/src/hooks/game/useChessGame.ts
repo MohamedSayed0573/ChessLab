@@ -10,9 +10,10 @@ import type {
 } from "@chesslab/shared/types";
 import { Chess } from "chess.js";
 import { useCallback, useEffect, useState } from "react";
-import { useSocket } from "../useSocket";
+import { useSocket } from "@hooks/useSocket";
 import type { ChessboardOptions, PieceDropHandlerArgs } from "react-chessboard";
-import useTimer from "./useTimer";
+import useTimer from "@hooks/game/useTimer";
+import { playMoveSound } from "@services/sfx/index";
 
 export function useChessGame(gameId?: string) {
 	const { socket } = useSocket();
@@ -34,6 +35,7 @@ export function useChessGame(gameId?: string) {
 
 	const handleMove = useCallback(
 		({ fen, turn, timeInfo }: MoveMadeEvent) => {
+			playMoveSound(chessGame);
 			chessGame.load(fen);
 			setChessPosition(fen);
 			setTurn(turn);

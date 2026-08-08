@@ -4,13 +4,15 @@ import { Chess } from "chess.js";
 import { useState } from "react";
 import { getGameOverInfo } from "@chesslab/shared/utils";
 import { useCompTimer } from "./useCompTimer";
+import { playMoveSound } from "@services/sfx/index";
 
 export function useComputerGame() {
 	const [chessGame] = useState(() => new Chess());
 	const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
 	const [turn, setTurn] = useState<"w" | "b">("w");
 	const [gameHistory, setGameHistory] = useState<string[]>([]);
-	const [side] = useState<"w" | "b">(() => (Math.random() < 0.5 ? "w" : "b"));
+	// const [side] = useState<"w" | "b">(() => (Math.random() < 0.5 ? "w" : "b"));
+	const [side] = useState<"w" | "b">(() => "w");
 
 	let gameOverInfo = getGameOverInfo(chessGame);
 
@@ -37,6 +39,7 @@ export function useComputerGame() {
 			setChessPosition(chessGame.fen());
 			setTurn(chessGame.turn());
 			setGameHistory(chessGame.history());
+			playMoveSound(chessGame);
 		},
 	});
 
@@ -53,6 +56,8 @@ export function useComputerGame() {
 			if (!move) return false;
 
 			setChessPosition(chessGame.fen());
+
+			playMoveSound(chessGame);
 			setTurn(chessGame.turn());
 			setGameHistory(chessGame.history());
 
