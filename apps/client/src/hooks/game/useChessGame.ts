@@ -17,7 +17,7 @@ import useTimer from "./useTimer";
 export function useChessGame(gameId?: string) {
 	const { socket } = useSocket();
 
-	const [chessGame] = useState(new Chess());
+	const [chessGame] = useState(() => new Chess());
 	const [chessPosition, setChessPosition] = useState(() => chessGame.fen());
 	const [gameOverInfo, setGameOverInfo] = useState<GameStateEvent | undefined>();
 	const [opponentId, setOpponentId] = useState<string | undefined>();
@@ -85,7 +85,7 @@ export function useChessGame(gameId?: string) {
 	}, [socket, chessGame, gameId, handleMove]);
 
 	function onPieceDrop({ sourceSquare, targetSquare }: PieceDropHandlerArgs) {
-		if (!targetSquare || gameOverInfo?.gameOver || !isGameStarted || !color) {
+		if (!targetSquare || gameOverInfo?.gameOver || !isGameStarted) {
 			return false;
 		}
 

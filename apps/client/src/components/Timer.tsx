@@ -2,7 +2,7 @@ import { cn } from "@utils/cn";
 
 interface TimerType {
 	side: "w" | "b";
-	displayTime: number | undefined;
+	displayTime?: number;
 	currentTurn: "w" | "b";
 	playerName: string | undefined;
 }

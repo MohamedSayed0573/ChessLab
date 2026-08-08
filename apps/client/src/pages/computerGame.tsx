@@ -8,12 +8,7 @@ export default function ComputerChessBoard() {
 
 	return (
 		<div className="grid h-full grid-rows-[auto_minmax(0,1fr)_auto] bg-[#131312] sm:mr-120">
-			<Timer
-				side={side === "w" ? "b" : "w"}
-				displayTime={undefined}
-				currentTurn={turn}
-				playerName="Stockfish"
-			/>
+			<Timer side={side === "w" ? "b" : "w"} currentTurn={turn} playerName="Stockfish" />
 			<ChessBoard chessboardOptions={chessboardOptions} />
 			<Timer currentTurn={turn} side={side} displayTime={timeMs} playerName="Player" />
 			<SideBar opponent={"Stockfish"} gameState={gameOverInfo} />
