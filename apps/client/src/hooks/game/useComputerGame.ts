@@ -5,8 +5,9 @@ import { useState } from "react";
 import { getGameOverInfo } from "@chesslab/shared/utils";
 import { useCompTimer } from "./useCompTimer";
 import { playMoveSound } from "@services/sfx/index";
+import type { DifficultyKey } from "@constants/stockfish";
 
-export function useComputerGame() {
+export function useComputerGame({ difficulty }: { difficulty: DifficultyKey }) {
 	const [chessGame] = useState(() => new Chess());
 	const [chessPosition, setChessPosition] = useState(() => new Chess().fen());
 	const [turn, setTurn] = useState<"w" | "b">("w");
@@ -35,6 +36,7 @@ export function useComputerGame() {
 		turn,
 		stockfishSide: side === "w" ? "b" : "w",
 		isGameOver: !!gameOverInfo,
+		difficulty,
 		onMove: () => {
 			setChessPosition(chessGame.fen());
 			setTurn(chessGame.turn());
