@@ -2,7 +2,7 @@ import { cn } from "@utils/cn";
 
 interface TimerType {
 	side: "w" | "b";
-	displayTime: number;
+	displayTime: number | undefined;
 	currentTurn: "w" | "b";
 	playerName: string | undefined;
 }
@@ -16,16 +16,18 @@ export function Timer({ side, displayTime, currentTurn, playerName = "Random Pla
 				<span className="text-lg text-[#E5E2DE]">{playerName}</span>
 			</div>
 
-			<div
-				className={cn(
-					"rounded border border-[#424A35] bg-[#2A2A28] px-4 py-2 text-[#E5E2DE]",
-					{ "bg-[#8cdd12] text-[#203600]": isActive },
-				)}
-			>
-				<span className={cn("font-mono text-lg font-semibold")}>
-					{formatTime(displayTime)}
-				</span>
-			</div>
+			{displayTime !== undefined && (
+				<div
+					className={cn(
+						"rounded border border-[#424A35] bg-[#2A2A28] px-4 py-2 text-[#E5E2DE]",
+						{ "bg-[#8cdd12] text-[#203600]": isActive },
+					)}
+				>
+					<span className={cn("font-mono text-lg font-semibold")}>
+						{formatTime(displayTime)}
+					</span>
+				</div>
+			)}
 		</div>
 	);
 }

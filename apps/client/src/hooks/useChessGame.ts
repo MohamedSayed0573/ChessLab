@@ -11,7 +11,7 @@ import type {
 import { Chess } from "chess.js";
 import { useEffect, useState } from "react";
 import { useSocket } from "./useSocket";
-import type { PieceDropHandlerArgs } from "react-chessboard";
+import type { ChessboardOptions, PieceDropHandlerArgs } from "react-chessboard";
 import useTimer from "./useTimer";
 
 export function useChessGame(gameId?: string) {
@@ -137,14 +137,20 @@ export function useChessGame(gameId?: string) {
 		return true;
 	}
 
-	return {
+	const chessboardOptions: ChessboardOptions = {
+		position: chessPosition,
 		onPieceDrop,
+		id: gameId ? `board-${gameId}` : "board",
+		boardOrientation: color === "w" ? "white" : "black",
+	};
+
+	return {
 		color,
-		chessPosition,
 		opponentId,
 		gameOverInfo,
 		whiteTimeMs,
 		blackTimeMs,
 		turn,
+		chessboardOptions,
 	};
 }

@@ -1,31 +1,15 @@
-import { type ChessboardOptions } from "react-chessboard";
 import { useParams } from "react-router";
 import ChessBoard from "@components/chessBoard";
 import SideBar from "@components/chessSidebar";
 import { useChessGame } from "@hooks/useChessGame";
-import { Timer } from "@/components/Timer";
-import useUser from "@/hooks/useUser";
+import { Timer } from "@components/Timer";
+import useUser from "@hooks/useUser";
 
 export default function PlayerGame() {
 	const { roomId: gameId } = useParams();
-	const {
-		onPieceDrop,
-		chessPosition,
-		color,
-		opponentId,
-		gameOverInfo,
-		blackTimeMs,
-		whiteTimeMs,
-		turn,
-	} = useChessGame(gameId);
+	const { color, opponentId, gameOverInfo, blackTimeMs, whiteTimeMs, turn, chessboardOptions } =
+		useChessGame(gameId);
 	const { user } = useUser();
-
-	const chessboardOptions: ChessboardOptions = {
-		position: chessPosition,
-		onPieceDrop,
-		id: gameId ? `board-${gameId}` : "board",
-		boardOrientation: color === "w" ? "white" : "black",
-	};
 
 	return (
 		<>
