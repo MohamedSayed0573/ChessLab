@@ -84,9 +84,7 @@ io.on("connection", (socket) => {
 			socket.data.gameInfo = { gameId, game };
 
 			game.on("game-over", ({ GameStateEvent }) => {
-				io.to(gameId).emit("game:game-over", {
-					GameStateEvent,
-				});
+				io.to(gameId).emit("game:game-over", GameStateEvent);
 			});
 
 			cb({
@@ -127,16 +125,14 @@ io.on("connection", (socket) => {
 			socket.data.gameInfo = { gameId, game };
 
 			game.on("game-over", () => {
-				io.to(gameId).emit("game:game-over", {
-					GameStateEvent: game.getGameStateEvent(),
-				});
+				io.to(gameId).emit("game:game-over", game.getGameStateEvent());
 			});
 
 			socket.to(gameId).emit("game:player-joined", {
 				gameId,
 				opponentColor: game.getColor(userId),
 				opponentId: userId,
-			} as PlayerJoinedEvent);
+			} satisfies PlayerJoinedEvent);
 
 			game.start();
 			io.to(gameId).emit("game:game-started", {
@@ -172,7 +168,9 @@ io.on("connection", (socket) => {
 			const turn = game.getTurn();
 			const timeInfo = game.getTimeInfo();
 
-			socket.to(gameId).emit("game:move-made", { fen, turn, timeInfo } as MoveMadeEvent);
+			socket
+				.to(gameId)
+				.emit("game:move-made", { fen, turn, timeInfo } satisfies MoveMadeEvent);
 
 			if (game.isGameOver()) {
 				io.to(gameId).emit("game:game-over", game.getGameStateEvent());

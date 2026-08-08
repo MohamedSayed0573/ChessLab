@@ -14,7 +14,6 @@
 	"license": "ISC",
 	"type": "module",
 	"devDependencies": {
-		"@types/chess.js": "^0.13.7",
 		"typescript": "^6.0.2"
 	},
 	"dependencies": {

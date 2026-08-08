@@ -11,10 +11,10 @@ export function getGameOverInfo(chess: Chess): GameStateEvent | undefined {
 		winnerColor = chess.turn() === "w" ? "b" : "w";
 	} else if (chess.isDraw()) {
 		winnerColor = "d";
-		if (chess.isDrawByFiftyMoves()) reason = "Fifty-Move Rule";
+		if (chess.isStalemate()) reason = "Stalemate";
 		else if (chess.isInsufficientMaterial()) reason = "Insufficient Material";
-		else if (chess.isStalemate()) reason = "Stalemate";
 		else if (chess.isThreefoldRepetition()) reason = "Threefold Repetition";
+		else if (chess.isDrawByFiftyMoves()) reason = "Fifty-Move Rule";
 	}
 
 	return {

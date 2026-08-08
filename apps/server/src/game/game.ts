@@ -138,7 +138,7 @@ export class Game extends EventEmitter {
 		this.clearTurnTimers();
 
 		if (this.chess.isGameOver()) {
-			this.evaluateGameOverState(this.chess);
+			this.evaluateGameOverState();
 		} else {
 			this.scheduleTurnTimer();
 		}
@@ -263,8 +263,8 @@ export class Game extends EventEmitter {
 		return playerId === this.whitePlayerId || playerId === this.blackPlayerId;
 	}
 
-	private evaluateGameOverState(chess: Chess) {
-		const gameStateInfo = getGameOverInfo(chess);
+	private evaluateGameOverState() {
+		const gameStateInfo = getGameOverInfo(this.chess);
 		if (!gameStateInfo) return;
 
 		this.GameStateEvent = gameStateInfo;

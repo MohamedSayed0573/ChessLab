@@ -114,22 +114,25 @@ export function useChessGame(gameId?: string) {
 		setChessPosition(chess.fen());
 		setTurn(chess.turn());
 
-		socket.emit(
+		function fallbackMove() {
+			chess.load(previousFen);
+			setChessPosition(previousFen);
+			setTurn(chess.turn());
+		}
+
+		socket.timeout(2_000).emit(
 			"game:move",
 			{
 				promotion: "q",
 				from: sourceSquare,
 				to: targetSquare,
 			},
-			(data: GameMoveAck) => {
-				if (data.ok) {
-					handleMove(data);
-				} else {
-					chess.load(previousFen);
-					setChessPosition(previousFen);
-					setTurn(chess.turn());
-					console.error("game:move rejected:", data.error);
+			(err: unknown, data: GameMoveAck) => {
+				if (err || !data?.ok) {
+					fallbackMove();
+					return;
 				}
+				handleMove(data);
 			},
 		);
 

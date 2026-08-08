@@ -196,9 +196,6 @@ importers:
                 specifier: ^1.4.0
                 version: 1.4.0
         devDependencies:
-            "@types/chess.js":
-                specifier: ^0.13.7
-                version: 0.13.7
             typescript:
                 specifier: ^6.0.2
                 version: 6.0.3
@@ -1596,12 +1593,6 @@ packages:
         resolution:
             {
                 integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==,
-            }
-
-    "@types/chess.js@0.13.7":
-        resolution:
-            {
-                integrity: sha512-o9TeeBdFXelFJXOD9+6sT6bbpBvWG0ZbpOnlIyUNXBjewh7xoFS0+BifGc71T45D5E952io3i8dDsaN6hnLaxw==,
             }
 
     "@types/connect@3.4.38":
@@ -5210,8 +5201,6 @@ snapshots:
         dependencies:
             "@types/connect": 3.4.38
             "@types/node": 24.13.3
-
-    "@types/chess.js@0.13.7": {}
 
     "@types/connect@3.4.38":
         dependencies:

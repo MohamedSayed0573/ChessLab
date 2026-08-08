@@ -15,7 +15,7 @@ export default function useTimer({
 	const [blackTimeMs, setBlackTimeMs] = useState(START_TIME_MS);
 
 	useEffect(() => {
-		if (gameOverInfo || !timeInfo) return;
+		if (gameOverInfo?.gameOver || !timeInfo) return;
 
 		const interval = setInterval(() => {
 			const elapsed = timeInfo.lastMoveTime != null ? Date.now() - timeInfo.lastMoveTime : 0;

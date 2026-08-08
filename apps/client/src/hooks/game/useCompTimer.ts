@@ -11,7 +11,7 @@ interface UseCompTimerProps {
 export function useCompTimer({ turn, side, isGameOver }: UseCompTimerProps) {
 	const [timeMs, setTimeMs] = useState(START_TIME_MS);
 	useEffect(() => {
-		if (isGameOver) return;
+		if (isGameOver || turn !== side) return;
 
 		let previousTime = Date.now();
 
