@@ -1,7 +1,7 @@
 import ChessBoard from "@components/chessBoard";
 import { Timer } from "@components/Timer";
 import SideBar from "@components/chessSidebar";
-import { useComputerGame } from "@hooks/useComputerGame";
+import { useComputerGame } from "@hooks/game/useComputerGame";
 
 export default function ComputerChessBoard() {
 	const { turn, side, timeMs, gameOverInfo, chessboardOptions } = useComputerGame();

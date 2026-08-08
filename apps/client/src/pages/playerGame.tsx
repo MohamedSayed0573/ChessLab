@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import ChessBoard from "@components/chessBoard";
 import SideBar from "@components/chessSidebar";
-import { useChessGame } from "@hooks/useChessGame";
+import { useChessGame } from "@hooks/game/useChessGame";
 import { Timer } from "@components/Timer";
 import useUser from "@hooks/useUser";
 

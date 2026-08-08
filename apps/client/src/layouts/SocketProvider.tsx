@@ -1,5 +1,5 @@
 import { useEffect, useState, type PropsWithChildren } from "react";
-import useAuth from "@hooks/useAuth";
+import useAuth from "@hooks/auth/useAuth";
 
 import { io, type Socket } from "socket.io-client";
 import { SERVER_URL } from "@/config";

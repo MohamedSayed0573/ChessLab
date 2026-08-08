@@ -1,5 +1,5 @@
 import { SERVER_URL } from "@/config";
-import useAuth from "@hooks/useAuth";
+import useAuth from "@/hooks/auth/useAuth";
 
 export function useApi() {
 	const { accessToken, refresh, logout } = useAuth();

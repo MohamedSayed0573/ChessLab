@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useAuth from "@hooks/useAuth";
+import useAuth from "@hooks/auth/useAuth";
 import { useApi } from "@hooks/useApi";
 import { useNavigate } from "react-router";
 

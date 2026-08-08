@@ -10,7 +10,7 @@ import type {
 } from "@chesslab/shared/types";
 import { Chess } from "chess.js";
 import { useEffect, useState } from "react";
-import { useSocket } from "./useSocket";
+import { useSocket } from "../useSocket";
 import type { ChessboardOptions, PieceDropHandlerArgs } from "react-chessboard";
 import useTimer from "./useTimer";
 
