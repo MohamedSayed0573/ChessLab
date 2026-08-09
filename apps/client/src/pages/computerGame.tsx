@@ -6,7 +6,7 @@ import { useState } from "react";
 import type { DifficultyKey } from "@constants/stockfish";
 
 export default function ComputerChessBoard() {
-	const [difficulty, setDifficulty] = useState<DifficultyKey>("beginner");
+	const [difficulty, setDifficulty] = useState<DifficultyKey>("easy");
 	const { turn, side, timeMs, gameOverInfo, chessboardOptions } = useComputerGame({ difficulty });
 
 	return (
