@@ -1,6 +1,5 @@
 export const difficulties = {
-	beginner: { elo: 800 },
-	easy: { elo: 1100 },
+	easy: { elo: 1320 },
 	medium: { elo: 1500 },
 	hard: { elo: 1900 },
 	expert: { elo: 2400 },
