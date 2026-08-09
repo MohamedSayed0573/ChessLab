@@ -22,7 +22,8 @@
 			"@stockfish/*": ["./src/stockfish/*"],
 			"@app-types/*": ["./src/types/*"],
 			"@utils/*": ["./src/utils/*"],
-			"@services/*": ["./src/services/*"]
+			"@services/*": ["./src/services/*"],
+			"@constants/*": ["./src/constants/*"]
 		}
 	},
 	"include": ["vite.config.ts", "src"]

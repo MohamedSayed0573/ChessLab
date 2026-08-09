@@ -1,12 +1,15 @@
 import type { GameStateEvent } from "@chesslab/shared/types";
+import type { DifficultyKey } from "@constants/stockfish";
+import { difficulties } from "@constants/stockfish";
 
-export default function SideBar({
-	opponent,
-	gameState,
-}: {
+interface SideBarProps {
 	opponent: string | undefined;
 	gameState: GameStateEvent | undefined;
-}) {
+	setDifficulty?: React.Dispatch<React.SetStateAction<DifficultyKey>>;
+	difficulty?: DifficultyKey;
+}
+
+export default function SideBar({ opponent, gameState, setDifficulty, difficulty }: SideBarProps) {
 	return (
 		<div className="fixed top-0 right-0 h-full w-120 border-l border-[#424A35] bg-[#1C1C1A] p-4">
 			<div>
@@ -27,6 +30,20 @@ export default function SideBar({
 					</div>
 				)}
 			</div>
+			{setDifficulty && (
+				<div>
+					<select
+						value={difficulty}
+						onChange={(e) => setDifficulty(e.target.value as DifficultyKey)}
+					>
+						{Object.entries(difficulties).map(([key]) => (
+							<option key={key} value={key}>
+								{key}
+							</option>
+						))}
+					</select>
+				</div>
+			)}
 		</div>
 	);
 }

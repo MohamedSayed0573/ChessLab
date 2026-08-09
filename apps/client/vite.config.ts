@@ -21,6 +21,7 @@ export default defineConfig({
 			"@app-types": path.resolve(__dirname, "./src/types"),
 			"@utils": path.resolve(__dirname, "./src/utils"),
 			"@services": path.resolve(__dirname, "./src/services"),
+			"@constants": path.resolve(__dirname, "./src/constants"),
 		},
 	},
 	server: {
